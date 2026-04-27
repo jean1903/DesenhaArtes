@@ -65,36 +65,42 @@ async function adicionarMarcaDagua(imageUrl) {
     const meta = await sharp(imgBuffer).metadata();
     const w = meta.width || 800;
     const h = meta.height || 800;
-    const fontSize = Math.max(14, Math.floor(w / 18));
-    const spacing = fontSize * 2.2;
 
-    // Gera linhas repetidas diagonal estilo "Copyrighted Contents"
-    const rows = Math.ceil(h / spacing) + 4;
-    const cols = Math.ceil(w / (fontSize * 18)) + 3;
-    let textElements = '';
-    for (let row = -2; row < rows; row++) {
-      for (let col = -1; col < cols; col++) {
-        const x = col * fontSize * 18 + (row % 2 === 0 ? 0 : fontSize * 9);
-        const y = row * spacing;
-        textElements += `<text x="${x}" y="${y}" transform="rotate(-15 ${x} ${y})">NAO REMOVER A MARCA DA AGUA</text>`;
+    // Tamanho da fonte proporcional à imagem
+    const fontSize = Math.max(16, Math.floor(w / 14));
+    const lineH    = fontSize * 2.0;
+    const textW    = fontSize * 22; // largura aproximada do texto
+
+    // Gera grid denso de textos diagonais cobrindo TODA a imagem
+    let texts = '';
+    const rows = Math.ceil((h + w) / lineH) + 4;
+    const cols = Math.ceil((w + h) / textW) + 3;
+
+    for (let r = -2; r < rows; r++) {
+      for (let c = -2; c < cols; c++) {
+        const x = c * textW + (r % 2 === 0 ? 0 : textW / 2) - w * 0.3;
+        const y = r * lineH - h * 0.1;
+        texts += `<text x="${x}" y="${y}" transform="rotate(-20,${x},${y})">NAO RETIRAR A MARCA DA AGUA</text>`;
       }
     }
 
-    const svgText = `<svg width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg">
-      <style>text {
-        font-family: Arial, sans-serif;
-        font-size: ${fontSize}px;
-        fill: rgba(80,80,80,0.45);
-        font-weight: bold;
-        letter-spacing: 1px;
-      }</style>
-      ${textElements}
+    const svg = `<svg width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg">
+      <style>
+        text {
+          font-family: Arial Black, Arial, sans-serif;
+          font-size: ${fontSize}px;
+          font-weight: 900;
+          fill: rgba(40,40,40,0.38);
+          letter-spacing: 2px;
+        }
+      </style>
+      ${texts}
     </svg>`;
 
-    const watermark = Buffer.from(svgText);
+    const wm = Buffer.from(svg);
     const result = await sharp(imgBuffer)
-      .composite([{ input: watermark, blend: 'over' }])
-      .jpeg({ quality: 88 })
+      .composite([{ input: wm, blend: 'over' }])
+      .jpeg({ quality: 90 })
       .toBuffer();
 
     return result.toString('base64');
