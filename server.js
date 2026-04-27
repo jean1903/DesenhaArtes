@@ -6,7 +6,6 @@ const FormData = require('form-data');
 const jwt      = require('jsonwebtoken');
 const bcrypt   = require('bcryptjs');
 const sharp    = require('sharp');
-const { createCanvas } = require('canvas');
 const { v4: uuidv4 } = require('uuid');
 const db       = require('./db');
 
@@ -47,6 +46,84 @@ function auth(req, res, next) {
   if (!token) return res.status(401).json({ erro: 'Não autenticado.' });
   try { req.email = jwt.verify(token, JWT_SECRET).email; next(); }
   catch { res.status(401).json({ erro: 'Token inválido.' }); }
+}
+
+async function uploadImgBB(base64) {
+  const form = new FormData();
+  form.append('image', base64);
+  const res = await axios.post(
+    `https://api.imgbb.com/1/upload?key=${process.env.IMGBB_API_KEY}`,
+    form, { headers: form.getHeaders(), timeout: 30000 }
+  );
+  return res.data.data.url;
+}
+
+async function adicionarMarcaDagua(imageUrl) {
+  try {
+    const imgRes = await axios.get(imageUrl, { responseType: 'arraybuffer' });
+    const imgBuffer = Buffer.from(imgRes.data);
+    const meta = await sharp(imgBuffer).metadata();
+    const w = meta.width || 800;
+    const h = meta.height || 800;
+
+    // Estrategia: criar multiplos tiles PNG com stripes diagonais escuras
+    // e compositar sobre a imagem - sem depender de fontes
+    
+    const stripe = Math.floor(w / 8);  // largura da faixa diagonal
+    const gap    = Math.floor(w / 5);  // espaco entre faixas
+    const period = stripe + gap;
+
+    // Cria buffer RGBA com faixas diagonais
+    const wmData = Buffer.alloc(w * h * 4, 0);
+    
+    for (let y = 0; y < h; y++) {
+      for (let x = 0; x < w; x++) {
+        const diag = ((x + y) % period + period) % period;
+        if (diag < stripe) {
+          const idx = (y * w + x) * 4;
+          const fade = diag < stripe / 2 
+            ? diag / (stripe / 2) 
+            : (stripe - diag) / (stripe / 2);
+          const alpha = Math.floor(130 * fade);
+          wmData[idx]   = 15;
+          wmData[idx+1] = 15;
+          wmData[idx+2] = 15;
+          wmData[idx+3] = alpha;
+        }
+      }
+    }
+
+    const wmPng = await sharp(wmData, {
+      raw: { width: w, height: h, channels: 4 }
+    }).png().toBuffer();
+
+    // Faixa central solida (linha grossa no meio como na imagem)
+    const barH  = Math.floor(h * 0.07);
+    const barY  = Math.floor(h / 2 - barH / 2);
+    const barData = Buffer.alloc(w * barH * 4);
+    for (let i = 0; i < w * barH; i++) {
+      barData[i * 4]     = 10;
+      barData[i * 4 + 1] = 10;
+      barData[i * 4 + 2] = 10;
+      barData[i * 4 + 3] = 180;
+    }
+    const barPng = await sharp(barData, {
+      raw: { width: w, height: barH, channels: 4 }
+    }).png().toBuffer();
+
+    const result = await sharp(imgBuffer)
+      .composite([
+        { input: wmPng, blend: 'over' },
+        { input: barPng, top: barY, left: 0, blend: 'over' },
+      ])
+      .jpeg({ quality: 90 })
+      .toBuffer();
+
+    return result.toString('base64');
+  } catch(e) {
+    console.error('Erro marca dagua:', e.message);
+    return null;
+  }
 }
 
 async function uploadImgBB(base64) {
