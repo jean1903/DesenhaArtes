@@ -6,6 +6,7 @@ const FormData = require('form-data');
 const jwt      = require('jsonwebtoken');
 const bcrypt   = require('bcryptjs');
 const sharp    = require('sharp');
+const { createCanvas } = require('canvas');
 const { v4: uuidv4 } = require('uuid');
 const db       = require('./db');
 
@@ -46,6 +47,164 @@ function auth(req, res, next) {
   if (!token) return res.status(401).json({ erro: 'Não autenticado.' });
   try { req.email = jwt.verify(token, JWT_SECRET).email; next(); }
   catch { res.status(401).json({ erro: 'Token inválido.' }); }
+}
+
+async function uploadImgBB(base64) {
+  const form = new FormData();
+  form.append('image', base64);
+  const res = await axios.post(
+    `https://api.imgbb.com/1/upload?key=${process.env.IMGBB_API_KEY}`,
+    form, { headers: form.getHeaders(), timeout: 30000 }
+  );
+  return res.data.data.url;
+}
+
+async function adicionarMarcaDagua(imageUrl) {
+  try {
+    const imgRes = await axios.get(imageUrl, { responseType: 'arraybuffer' });
+    const imgBuffer = Buffer.from(imgRes.data);
+    const meta = await sharp(imgBuffer).metadata();
+    const w = meta.width || 800;
+    const h = meta.height || 800;
+
+    // Cria canvas com texto real
+    const canvas = createCanvas(w, h);
+    const ctx = canvas.getContext('2d');
+
+    // Fundo transparente
+    ctx.clearRect(0, 0, w, h);
+
+    const fontSize = Math.max(24, Math.floor(w / 13));
+    const texto = 'NAO RETIRE A MARCA DAGUA';
+    ctx.font = `bold ${fontSize}px Arial`;
+    ctx.fillStyle = 'rgba(20, 20, 20, 0.52)';
+
+    const lineH  = fontSize * 3.2;
+    const textW  = ctx.measureText(texto).width + fontSize * 2;
+    const rows   = Math.ceil((w + h) / lineH) + 6;
+    const cols   = Math.ceil((w + h) / textW) + 4;
+
+    ctx.save();
+    ctx.translate(w / 2, h / 2);
+    ctx.rotate(-Math.PI / 6); // -30 graus
+    ctx.translate(-w, -h);
+
+    for (let r = -2; r < rows + 2; r++) {
+      for (let c = -2; c < cols + 2; c++) {
+        const x = c * textW + (r % 2 === 0 ? 0 : textW / 2);
+        const y = r * lineH;
+        ctx.fillText(texto, x, y);
+      }
+    }
+
+    // Texto central grande
+    const bigSize = Math.floor(w / 9);
+    ctx.font = `900 ${bigSize}px Arial`;
+    ctx.fillStyle = 'rgba(10, 10, 10, 0.60)';
+    ctx.textAlign = 'center';
+    ctx.fillText(texto, w, h);
+
+    ctx.restore();
+
+    const wmBuffer = canvas.toBuffer('image/png');
+
+    const result = await sharp(imgBuffer)
+      .composite([{ input: wmBuffer, blend: 'over' }])
+      .jpeg({ quality: 90 })
+      .toBuffer();
+
+    return result.toString('base64');
+  } catch(e) {
+    console.error('Erro marca dagua:', e.message);
+    return null;
+  }
+}
+
+async function uploadImgBB(base64) {
+  const form = new FormData();
+  form.append('image', base64);
+  const res = await axios.post(
+    `https://api.imgbb.com/1/upload?key=${process.env.IMGBB_API_KEY}`,
+    form, { headers: form.getHeaders(), timeout: 30000 }
+  );
+  return res.data.data.url;
+}
+
+async function adicionarMarcaDagua(imageUrl) {
+  try {
+    const imgRes = await axios.get(imageUrl, { responseType: 'arraybuffer' });
+    const imgBuffer = Buffer.from(imgRes.data);
+    const meta = await sharp(imgBuffer).metadata();
+    const w = meta.width || 800;
+    const h = meta.height || 800;
+
+    // Cria marca dagua como imagem PNG usando sharp raw
+    // Usa multiplas linhas diagonais de pixels brancos/cinzas
+    const tileSize = 200;
+    const stripeW  = 40;
+
+    // Cria tile com stripes diagonais
+    const tileData = Buffer.alloc(tileSize * tileSize * 4, 0); // RGBA transparente
+    for (let y = 0; y < tileSize; y++) {
+      for (let x = 0; x < tileSize; x++) {
+        const diag = (x + y) % tileSize;
+        if (diag < stripeW) {
+          const idx = (y * tileSize + x) * 4;
+          const alpha = Math.floor(120 * (1 - diag / stripeW)); // fade
+          tileData[idx]   = 30;   // R
+          tileData[idx+1] = 30;   // G
+          tileData[idx+2] = 30;   // B
+          tileData[idx+3] = alpha; // A
+        }
+      }
+    }
+
+    const tilePng = await sharp(tileData, {
+      raw: { width: tileSize, height: tileSize, channels: 4 }
+    }).png().toBuffer();
+
+    // Repete o tile para cobrir a imagem toda
+    const cols = Math.ceil(w / tileSize) + 1;
+    const rows = Math.ceil(h / tileSize) + 1;
+    const composites = [];
+
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        composites.push({
+          input: tilePng,
+          top: r * tileSize,
+          left: c * tileSize,
+          blend: 'over'
+        });
+      }
+    }
+
+    // Adiciona linha central grossa
+    const lineH = Math.floor(h * 0.08);
+    const lineY = Math.floor(h / 2 - lineH / 2);
+    const lineData = Buffer.alloc(w * lineH * 4);
+    for (let i = 0; i < w * lineH * 4; i += 4) {
+      lineData[i]   = 20;
+      lineData[i+1] = 20;
+      lineData[i+2] = 20;
+      lineData[i+3] = 160;
+    }
+    const linePng = await sharp(lineData, {
+      raw: { width: w, height: lineH, channels: 4 }
+    }).png().toBuffer();
+
+    composites.push({ input: linePng, top: lineY, left: 0, blend: 'over' });
+
+    const result = await sharp(imgBuffer)
+      .composite(composites)
+      .jpeg({ quality: 88 })
+      .toBuffer();
+
+    return result.toString('base64');
+  } catch(e) {
+    console.error('Erro marca dagua:', e.message);
+    return null;
+  }
 }
 
 async function uploadImgBB(base64) {
