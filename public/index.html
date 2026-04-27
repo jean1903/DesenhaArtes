@@ -1,1 +1,638 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DesenhaArte — Seu Retrato em Desenho a Lápis com IA</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500;600&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F7F4EF;
+  --paper2:#EDE8E0;
+  --paper3:#E2DBD0;
+  --ink:#1A1512;
+  --ink2:#2D2420;
+  --ink3:#5C5248;
+  --pencil:#7A6A55;
+  --pencil-l:#A89880;
+  --border:rgba(26,21,18,0.15);
+  --border2:rgba(26,21,18,0.07);
+  --shadow:rgba(26,21,18,0.1);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  background:var(--paper);
+  color:var(--ink);
+  font-family:'DM Sans',sans-serif;
+  min-height:100vh;
+  overflow-x:hidden;
+}
+body::before{
+  content:'';
+  position:fixed;inset:0;
+  background-image:repeating-linear-gradient(transparent,transparent 31px,rgba(26,21,18,0.05) 31px,rgba(26,21,18,0.05) 32px);
+  pointer-events:none;z-index:0;
+}
+*{position:relative;z-index:1}
 
+/* NAV */
+nav{padding:1rem 2rem;display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid var(--border);position:sticky;top:0;background:rgba(247,244,239,0.97);backdrop-filter:blur(8px);z-index:200}
+.logo{font-family:'Playfair Display',serif;font-size:1.6rem;color:var(--ink);letter-spacing:1px;text-decoration:none;display:flex;align-items:center;gap:.5rem;font-weight:700}
+.nav-right{display:flex;align-items:center;gap:.7rem;flex-wrap:wrap}
+#navCreditos{font-size:.82rem;color:var(--ink);border:1.5px solid var(--border);padding:.3rem .9rem;border-radius:3px;display:none;white-space:nowrap;background:var(--paper2);font-weight:600}
+#navEmail{font-size:.8rem;color:var(--ink3);display:none;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500}
+.btn-nav{background:none;border:1.5px solid var(--border);color:var(--ink);padding:.4rem 1rem;border-radius:3px;cursor:pointer;font-size:.82rem;font-family:'DM Sans',sans-serif;font-weight:500;transition:all .2s;white-space:nowrap}
+.btn-nav:hover{border-color:var(--ink);background:var(--paper2)}
+.btn-nav.dark{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.btn-nav.dark:hover{background:var(--ink2)}
+
+/* OVERLAY */
+.overlay{display:none;position:fixed;inset:0;background:rgba(26,21,18,0.65);z-index:999;align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(4px)}
+.overlay.active{display:flex}
+.modal{background:var(--paper);border:1.5px solid var(--border);border-radius:4px;padding:2rem;width:100%;max-width:420px;position:relative;animation:fadeUp .2s ease;box-shadow:0 8px 40px var(--shadow)}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.modal h3{font-family:'Playfair Display',serif;font-size:1.4rem;margin-bottom:.4rem;color:var(--ink);font-weight:700}
+.modal-sub{color:var(--ink3);font-size:.88rem;margin-bottom:1.4rem;line-height:1.6;font-weight:400}
+.modal-close{position:absolute;top:1rem;right:1rem;background:none;border:none;color:var(--ink3);font-size:1.1rem;cursor:pointer;font-size:1.3rem}
+.field{margin-bottom:.9rem}
+.field label{display:block;font-size:.75rem;color:var(--ink2);margin-bottom:.4rem;letter-spacing:.8px;text-transform:uppercase;font-weight:600}
+.field input{width:100%;background:var(--paper2);border:1.5px solid var(--border);color:var(--ink);padding:.8rem 1rem;border-radius:3px;font-size:.92rem;font-family:'DM Sans',sans-serif;font-weight:400;transition:border .2s}
+.field input:focus{outline:none;border-color:var(--ink)}
+.btn-ink{width:100%;background:var(--ink);color:var(--paper);border:none;padding:.95rem;border-radius:3px;font-size:.95rem;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s;margin-top:.4rem;letter-spacing:.3px}
+.btn-ink:hover{background:var(--ink2);transform:translateY(-1px)}
+.btn-ink:disabled{background:var(--pencil-l);cursor:not-allowed;transform:none}
+.modal-switch{text-align:center;margin-top:1rem;font-size:.85rem;color:var(--ink3);font-weight:400}
+.modal-switch a{color:var(--pencil);cursor:pointer;text-decoration:underline;font-weight:600}
+.msg{font-size:.84rem;margin-top:.7rem;text-align:center;padding:.55rem;border-radius:3px;font-weight:500}
+.msg.err{color:#7A1A1A;background:rgba(122,26,26,.08);border:1px solid rgba(122,26,26,.2)}
+.msg.ok{color:#1A4A1A;background:rgba(26,74,26,.08);border:1px solid rgba(26,74,26,.2)}
+
+/* HERO */
+.hero{padding:6rem 2rem 4rem;text-align:center;position:relative;overflow:hidden}
+.tag-ms{display:inline-block;font-family:'Caveat',cursive;font-size:1.2rem;color:var(--pencil);border-bottom:2px solid var(--pencil-l);padding-bottom:.1rem;margin-bottom:1.5rem;font-weight:700;letter-spacing:.5px}
+h1{font-family:'Playfair Display',serif;font-size:clamp(2.4rem,5.5vw,5rem);font-weight:700;line-height:1.05;margin-bottom:1.2rem;color:var(--ink);letter-spacing:-.5px}
+h1 em{font-style:italic;color:var(--pencil);font-weight:400}
+.subtitle{color:var(--ink3);font-size:1.05rem;max-width:540px;margin:0 auto 2rem;line-height:1.8;font-weight:400}
+.beneficios{display:flex;flex-wrap:wrap;justify-content:center;gap:.5rem;margin-bottom:2rem}
+.beneficio{font-size:.88rem;color:var(--ink2);border:1.5px solid var(--border);padding:.35rem 1rem;border-radius:2px;font-family:'Caveat',cursive;font-size:1rem;font-weight:500;background:white}
+.urgencia{display:inline-block;font-family:'Caveat',cursive;font-size:1.05rem;color:var(--pencil);margin-bottom:2rem;padding:.4rem 1.2rem;border:1.5px dashed var(--pencil-l);border-radius:2px;font-weight:700}
+.btn-cta{display:inline-block;background:var(--ink);color:var(--paper);padding:1.1rem 2.8rem;border-radius:3px;font-size:1.05rem;font-weight:600;text-decoration:none;cursor:pointer;border:none;font-family:'DM Sans',sans-serif;transition:all .2s;margin-bottom:.8rem;letter-spacing:.3px}
+.btn-cta:hover{background:var(--ink2);transform:translateY(-2px);box-shadow:0 6px 24px var(--shadow)}
+.cta-note{font-family:'Caveat',cursive;font-size:1.05rem;color:var(--pencil);display:block;margin-top:.6rem;font-weight:500}
+
+/* EXEMPLOS */
+.section{padding:5rem 2rem;border-top:1.5px solid var(--border)}
+.section.bg2{background:var(--paper2)}
+.section-label{font-family:'Caveat',cursive;font-size:1.1rem;color:var(--pencil);text-align:center;margin-bottom:.5rem;letter-spacing:1px;font-weight:700}
+.section-title{text-align:center;font-family:'Playfair Display',serif;font-size:clamp(1.8rem,3vw,2.8rem);font-weight:700;margin-bottom:.6rem;color:var(--ink)}
+.section-sub{text-align:center;color:var(--ink3);font-size:.95rem;margin-bottom:3rem;font-weight:400}
+
+.ex-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:2rem;max-width:1100px;margin:0 auto}
+.ex-card{background:white;border:1.5px solid var(--border);box-shadow:4px 4px 0 var(--border2);overflow:hidden}
+.ex-card img{width:100%;height:260px;object-fit:cover;display:block}
+.ex-footer{padding:.75rem 1rem;font-family:'Caveat',cursive;font-size:1.05rem;color:var(--ink3);text-align:center;border-top:1px solid var(--border);background:var(--paper2);font-weight:500}
+
+/* COMO */
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:2rem;max-width:800px;margin:2.5rem auto 0}
+.step{text-align:center}
+.step-num{width:50px;height:50px;border:2px solid var(--ink);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;font-family:'Playfair Display',serif;font-size:1.3rem;color:var(--ink);font-weight:700}
+.step h4{font-size:1rem;margin-bottom:.4rem;color:var(--ink);font-weight:600}
+.step p{font-size:.88rem;color:var(--ink3);line-height:1.7;font-weight:400}
+
+/* DEPOIMENTOS */
+.deps-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1.5rem;max-width:900px;margin:2.5rem auto 0}
+.dep{background:white;border:1.5px solid var(--border);padding:1.5rem;box-shadow:3px 3px 0 var(--border2)}
+.dep-stars{color:var(--pencil);font-size:.9rem;margin-bottom:.8rem;letter-spacing:2px}
+.dep p{font-size:.9rem;color:var(--ink2);line-height:1.8;margin-bottom:1rem;font-style:italic;font-weight:400}
+.dep-autor{font-family:'Caveat',cursive;font-size:1.05rem;color:var(--pencil);font-weight:600}
+
+/* STATS */
+.stats{display:flex;justify-content:center;gap:4rem;padding:3rem 2rem;border-top:1.5px solid var(--border);border-bottom:1.5px solid var(--border);background:var(--paper2)}
+.stat-num{font-family:'Playfair Display',serif;font-size:2.8rem;color:var(--ink);font-weight:700}
+.stat-label{font-family:'Caveat',cursive;font-size:1.05rem;color:var(--pencil);font-weight:600}
+footer{text-align:center;padding:2rem;color:var(--ink3);border-top:1.5px solid var(--border);font-family:'Caveat',cursive;font-size:1.05rem;font-weight:500}
+
+/* PAINEL */
+#painel{display:none;min-height:100vh;padding:2rem;background:var(--paper)}
+.painel-header{max-width:700px;margin:0 auto 2rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem;padding-bottom:1rem;border-bottom:2px solid var(--border)}
+.painel-titulo{font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:700;color:var(--ink)}
+.cred-badge{background:var(--paper2);border:1.5px solid var(--border);padding:.5rem 1.2rem;font-family:'Caveat',cursive;font-size:1.05rem;color:var(--ink);font-weight:700}
+
+.upload-card{max-width:700px;margin:0 auto 2rem;background:white;border:1.5px solid var(--border);box-shadow:4px 4px 0 var(--border2)}
+.upload-zone{padding:3rem 2rem;text-align:center;cursor:pointer;border-bottom:1.5px solid var(--border);transition:background .2s}
+.upload-zone:hover,.upload-zone.drag{background:var(--paper2)}
+.upload-icon{font-size:3rem;margin-bottom:.8rem;display:block}
+.upload-zone h3{font-family:'Playfair Display',serif;font-weight:700;font-size:1.2rem;margin-bottom:.4rem;color:var(--ink)}
+.upload-zone p{color:var(--ink3);font-family:'Caveat',cursive;font-size:1.05rem;font-weight:500}
+#fileInput{display:none}
+#previewArea{display:none;padding:1.2rem;border-bottom:1.5px solid var(--border)}
+.preview-img{width:100%;max-height:300px;object-fit:contain;border:1.5px solid var(--border);display:block}
+#loadingArea{display:none;padding:2.5rem;text-align:center;border-bottom:1.5px solid var(--border)}
+.spinner{width:44px;height:44px;border:3px solid var(--border);border-top-color:var(--ink);border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 1rem}
+@keyframes spin{to{transform:rotate(360deg)}}
+#loadingArea p{color:var(--ink3);font-family:'Caveat',cursive;font-size:1.15rem;font-weight:600}
+#resultArea{display:none;padding:1.2rem;border-bottom:1.5px solid var(--border)}
+.result-preview{position:relative;margin-bottom:1rem}
+.result-preview img{width:100%;display:block;border:1.5px solid var(--border)}
+.wm-badge{position:absolute;top:.6rem;right:.6rem;background:rgba(26,21,18,.85);color:var(--paper);font-family:'Caveat',cursive;font-size:.95rem;padding:.3rem .8rem;font-weight:600}
+.liberar-box{background:var(--paper2);border:1.5px solid var(--border);padding:1.5rem;text-align:center;margin-top:1rem}
+.liberar-titulo{font-family:'Playfair Display',serif;font-size:1.1rem;margin-bottom:.5rem;color:var(--ink);font-weight:700}
+.liberar-box p{font-size:.9rem;color:var(--ink3);margin-bottom:1rem;line-height:1.6;font-weight:400}
+.liberar-preco{font-family:'Playfair Display',serif;font-size:2rem;color:var(--ink);font-weight:700;margin-bottom:1rem}
+.btn-liberar{background:var(--ink);color:var(--paper);border:none;padding:1rem 2rem;font-size:1rem;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s;width:100%;letter-spacing:.3px;border-radius:2px}
+.btn-liberar:hover{background:var(--ink2);transform:translateY(-1px)}
+.btn-voltar{width:100%;background:transparent;border:1.5px solid var(--border);color:var(--ink3);padding:.75rem;font-family:'Caveat',cursive;font-size:1.05rem;font-weight:600;margin-top:.8rem;cursor:pointer;transition:all .2s}
+.btn-voltar:hover{border-color:var(--ink);color:var(--ink)}
+.card-actions{padding:1.2rem}
+.btn-main{width:100%;background:var(--ink);color:var(--paper);border:none;padding:1rem;font-size:.98rem;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s;border-radius:2px;letter-spacing:.3px}
+.btn-main:hover:not(:disabled){background:var(--ink2);transform:translateY(-1px)}
+.btn-main:disabled{background:var(--pencil-l);cursor:not-allowed}
+.btn-outline{width:100%;background:transparent;color:var(--ink);border:2px solid var(--ink);padding:1rem;font-size:.98rem;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s;border-radius:2px}
+.btn-outline:hover{background:var(--paper2)}
+
+/* HISTÓRICO */
+.historico{max-width:700px;margin:2rem auto 0}
+.historico h3{font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:700;margin-bottom:1rem;color:var(--ink);padding-bottom:.6rem;border-bottom:2px solid var(--border)}
+.hist-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:1rem}
+.hist-item{background:white;border:1.5px solid var(--border);overflow:hidden;position:relative;box-shadow:3px 3px 0 var(--border2)}
+.hist-item img{width:100%;height:170px;object-fit:cover;display:block}
+.hist-item-info{padding:.7rem .9rem;display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--border);background:var(--paper2)}
+.hist-data{font-family:'Caveat',cursive;font-size:1rem;color:var(--ink3);font-weight:500}
+.hist-btn{font-family:'Caveat',cursive;font-size:.95rem;color:var(--pencil);border:1.5px solid var(--border);padding:.2rem .6rem;cursor:pointer;background:white;font-weight:600;border-radius:2px}
+.hist-btn:hover{border-color:var(--ink);color:var(--ink)}
+.hist-lock{position:absolute;top:.5rem;right:.5rem;background:rgba(26,21,18,.85);color:var(--paper);font-family:'Caveat',cursive;font-size:.9rem;padding:.25rem .6rem;font-weight:600}
+.hist-vazio{color:var(--ink3);font-family:'Caveat',cursive;font-size:1.1rem;text-align:center;padding:2.5rem;background:white;border:1.5px dashed var(--border);grid-column:1/-1;font-weight:500}
+
+/* PIX */
+.pix-code{font-family:monospace;font-size:.75rem;word-break:break-all;color:var(--ink);cursor:pointer;background:var(--paper2);padding:.8rem;border:1.5px solid var(--border);border-radius:2px;font-weight:500}
+
+@media(max-width:640px){
+  nav{padding:.8rem 1rem}
+  .hero{padding:3.5rem 1rem 2rem}
+  .steps{grid-template-columns:1fr}
+  .stats{gap:2rem;flex-direction:column;align-items:center;text-align:center}
+  #painel{padding:1rem}
+  .painel-header{flex-direction:column;align-items:flex-start}
+  .ex-card img{height:200px}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="logo" href="#" onclick="voltarHome()">
+    DesenhaArte
+  </a>
+  <div class="nav-right">
+    <span id="navCreditos"></span>
+    <span id="navEmail"></span>
+    <button class="btn-nav" id="btnPainel" style="display:none" onclick="mostrarPainel()">Meu Painel</button>
+    <button class="btn-nav" id="btnLogin" onclick="abrirOverlay('ovLogin')">Entrar</button>
+    <button class="btn-nav dark" id="btnCad" onclick="abrirOverlay('ovCadastro')">Criar conta</button>
+    <button class="btn-nav" id="btnSair" style="display:none" onclick="sair()">Sair</button>
+  </div>
+</nav>
+
+<!-- LOGIN -->
+<div class="overlay" id="ovLogin">
+  <div class="modal">
+    <button class="modal-close" onclick="fecharOverlay('ovLogin')">✕</button>
+    <h3>Entrar na conta</h3>
+    <p class="modal-sub">Acesse para transformar suas fotos em arte a lápis.</p>
+    <div class="field"><label>Email</label><input type="email" id="loginEmail" placeholder="seu@email.com"></div>
+    <div class="field"><label>Senha</label><input type="password" id="loginSenha" placeholder="••••••" onkeydown="if(event.key==='Enter')fazerLogin()"></div>
+    <button class="btn-ink" id="btnFazerLogin" onclick="fazerLogin()">Entrar</button>
+    <div id="msgLogin" class="msg" style="display:none"></div>
+    <div class="modal-switch">Não tem conta? <a onclick="trocarOverlay('ovLogin','ovCadastro')">Cadastre-se grátis</a></div>
+  </div>
+</div>
+
+<!-- CADASTRO -->
+<div class="overlay" id="ovCadastro">
+  <div class="modal">
+    <button class="modal-close" onclick="fecharOverlay('ovCadastro')">✕</button>
+    <h3>Criar conta</h3>
+    <p class="modal-sub">Crie sua conta e transforme suas fotos em arte a grafite.</p>
+    <div class="field"><label>Email</label><input type="email" id="cadEmail" placeholder="seu@email.com"></div>
+    <div class="field"><label>Senha</label><input type="password" id="cadSenha" placeholder="mínimo 6 caracteres"></div>
+    <div class="field"><label>Confirmar senha</label><input type="password" id="cadSenha2" placeholder="repita a senha" onkeydown="if(event.key==='Enter')fazerCadastro()"></div>
+    <button class="btn-ink" id="btnFazerCad" onclick="fazerCadastro()">Criar conta</button>
+    <div id="msgCad" class="msg" style="display:none"></div>
+    <div class="modal-switch">Já tem conta? <a onclick="trocarOverlay('ovCadastro','ovLogin')">Entrar</a></div>
+  </div>
+</div>
+
+<!-- PIX -->
+<div class="overlay" id="ovPix">
+  <div class="modal">
+    <button class="modal-close" onclick="fecharOverlay('ovPix')">✕</button>
+    <h3 id="pixTitulo">Pagamento PIX</h3>
+    <p class="modal-sub">Escaneie o QR Code ou copie o código abaixo. Após o pagamento sua arte será liberada automaticamente!</p>
+    <div id="pixQrArea" style="text-align:center;margin:1rem 0"><div class="spinner" style="margin:0 auto"></div></div>
+    <div id="pixCodigoArea" style="display:none">
+      <div style="background:var(--paper2);border:1.5px solid var(--border);padding:.8rem;margin-bottom:.8rem">
+        <div style="font-size:.78rem;color:var(--ink2);margin-bottom:.5rem;text-transform:uppercase;letter-spacing:.8px;font-weight:600">PIX Copia e Cola</div>
+        <div id="pixCodigo" class="pix-code" onclick="copiarPix()"></div>
+      </div>
+      <button class="btn-ink" onclick="copiarPix()">Copiar código PIX</button>
+      <div id="pixMsg" style="text-align:center;font-family:'Caveat',cursive;font-size:1.05rem;color:var(--pencil);margin-top:.6rem;display:none;font-weight:700">✓ Código copiado!</div>
+    </div>
+    <div id="pixAguardando" style="display:none;text-align:center;margin-top:1rem;color:var(--ink3);font-family:'Caveat',cursive;font-size:1.05rem;font-weight:600">
+      ⏳ Aguardando confirmação do pagamento...
+    </div>
+  </div>
+</div>
+
+<!-- LANDING -->
+<div id="landing">
+  <section class="hero" style="position:relative;overflow:hidden">
+    <div style="position:absolute;inset:0;z-index:0;overflow:hidden">
+      <img src="/hero-bg.png" alt="" style="
+        width:100%;height:100%;
+        object-fit:cover;
+        object-position:center 20%;
+        opacity:0.13;
+        filter:grayscale(100%) contrast(1.1);
+        transform:scale(1.05);
+      ">
+    </div>
+    <div class="tag-ms">✏ Inteligência Artificial · Arte a Grafite</div>
+    <h1>Sua foto transformada em<br><em>retrato artístico a lápis</em></h1>
+    <p class="subtitle">Nossa IA converte qualquer foto em um desenho realista a grafite, preservando cada detalhe do seu rosto com a precisão de um artista profissional.</p>
+    <div class="beneficios">
+      <span class="beneficio">✓ Preserva 100% das suas feições</span>
+      <span class="beneficio">✓ Estilo grafite profissional</span>
+      <span class="beneficio">✓ Pronto em minutos</span>
+      <span class="beneficio">✓ Alta resolução</span>
+    </div>
+    <button class="btn-cta" onclick="iniciarJornada()">Criar minha arte agora</button>
+  </section>
+
+  <section class="section bg2">
+    <div class="section-label">— exemplos reais —</div>
+    <h2 class="section-title">Veja as transformações</h2>
+    <p class="section-sub">Foto real → Retrato artístico a grafite profissional</p>
+    <div class="ex-grid">
+      <div class="ex-card">
+        <img src="/ex1.png" alt="Exemplo 1 — Retratos de casais">
+        <div class="ex-footer">✏ Retratos de casais</div>
+      </div>
+      <div class="ex-card">
+        <img src="/ex2.png" alt="Exemplo 2 — Animais de estimação">
+        <div class="ex-footer">✏ Animais de estimação</div>
+      </div>
+      <div class="ex-card">
+        <img src="/ex3.png" alt="Exemplo 3 — Retratos de casamento">
+        <div class="ex-footer">✏ Retratos de casamento</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-label">— passo a passo —</div>
+    <h2 class="section-title">Como funciona</h2>
+    <div class="steps">
+      <div class="step"><div class="step-num">1</div><h4>Envie sua foto</h4><p>Selecione qualquer foto com rosto bem iluminado e nítido. Funciona com pessoas, casais, família e animais.</p></div>
+      <div class="step"><div class="step-num">2</div><h4>IA processa</h4><p>Nossa IA converte em retrato artístico a grafite preservando cada detalhe. Receba a prévia com marca d'água.</p></div>
+      <div class="step"><div class="step-num">3</div><h4>Baixe sem marca d'água</h4><p>Gostou? Pague via PIX e baixe sua arte em alta resolução sem marca d'água em segundos.</p></div>
+    </div>
+  </section>
+
+  <section class="section bg2">
+    <div class="section-label">— depoimentos —</div>
+    <h2 class="section-title">O que nossos clientes dizem</h2>
+    <div class="deps-grid">
+      <div class="dep"><div class="dep-stars">★★★★★</div><p>Ficou idêntico ao meu rosto! O traço a lápis parece feito à mão por um artista profissional. Presente perfeito!</p><div class="dep-autor">— Ana Lima, São Paulo</div></div>
+      <div class="dep"><div class="dep-stars">★★★★★</div><p>Presenteei minha mãe com o retrato dela. Ela ficou completamente emocionada com o resultado. Recomendo demais!</p><div class="dep-autor">— Carlos Mendes, Rio de Janeiro</div></div>
+      <div class="dep"><div class="dep-stars">★★★★★</div><p>Em minutos tinha meu retrato artístico pronto para imprimir e emoldurar. Vale muito cada centavo!</p><div class="dep-autor">— Fernanda Costa, Curitiba</div></div>
+    </div>
+  </section>
+
+  <div class="stats">
+    <div><div class="stat-num">100%</div><div class="stat-label">feições preservadas</div></div>
+    <div><div class="stat-num">IA</div><div class="stat-label">avançada</div></div>
+    <div><div class="stat-num">4K</div><div class="stat-label">alta resolução</div></div>
+  </div>
+
+  <div style="padding:4rem 2rem;text-align:center;border-top:1.5px solid var(--border);background:var(--paper2)">
+    <div style="font-family:'Playfair Display',serif;font-size:clamp(1.6rem,3vw,2.4rem);font-weight:700;color:var(--ink);margin-bottom:1rem">Pronto para transformar sua foto?</div>
+    <p style="color:var(--ink3);font-size:.95rem;margin-bottom:2rem;font-weight:400">Envie sua foto e receba a prévia do seu retrato artístico a grafite.</p>
+    <button class="btn-cta" onclick="iniciarJornada()">Criar minha arte agora</button>
+  </div>
+
+  <footer>© 2025 DesenhaArte · Arte a grafite com inteligência artificial · Todos os direitos reservados</footer>
+</div>
+
+<!-- PAINEL -->
+<div id="painel">
+  <div class="painel-header">
+    <div>
+      <div class="painel-titulo">Meu Painel</div>
+      <div style="color:var(--ink3);font-family:'Caveat',cursive;font-size:1rem;margin-top:.2rem;font-weight:500" id="painelEmail"></div>
+    </div>
+    <div class="cred-badge">✏ <span id="creditosNum">0</span> crédito(s)</div>
+  </div>
+
+  <div class="upload-card">
+    <div class="upload-zone" id="uploadZone">
+      <span class="upload-icon">✏</span>
+      <h3>Envie sua foto</h3>
+      <p>Clique ou arraste · JPG, PNG até 10MB · Rosto bem iluminado</p>
+      <input type="file" id="fileInput" accept="image/*">
+    </div>
+
+    <div id="previewArea">
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:1rem 1.2rem .6rem">
+        <div style="font-size:.82rem;font-weight:600;color:var(--ink2);letter-spacing:.5px;text-transform:uppercase">Foto selecionada</div>
+        <button onclick="trocarFoto()" style="background:none;border:1.5px solid var(--border);color:var(--ink3);padding:.3rem .8rem;font-size:.82rem;cursor:pointer;font-family:'Caveat',cursive;font-size:.95rem;font-weight:600">⟳ trocar foto</button>
+      </div>
+      <div style="padding:0 1.2rem 1.2rem"><img id="previewImg" class="preview-img" alt="Preview"></div>
+    </div>
+
+    <div id="loadingArea">
+      <div class="spinner"></div>
+      <p>Criando seu retrato artístico a grafite...<br>Aguarde alguns instantes</p>
+    </div>
+
+    <div id="resultArea" style="padding:1.2rem;border-bottom:1.5px solid var(--border)">
+      <div style="font-family:'Caveat',cursive;font-size:1.05rem;color:var(--ink3);margin-bottom:.8rem;text-align:center;font-weight:600">Prévia do seu retrato (com marca d'água)</div>
+      <div class="result-preview">
+        <img id="resultImg" style="width:100%;display:block;border:1.5px solid var(--border)" alt="Retrato">
+        <div class="wm-badge">🔒 marca d'água</div>
+      </div>
+      <div class="liberar-box">
+        <div class="liberar-titulo">Gostou do resultado?</div>
+        <p>Pague via PIX e baixe sua arte em alta resolução sem marca d'água — instantaneamente!</p>
+        <div class="liberar-preco">R$5,90</div>
+        <button class="btn-liberar" onclick="comprarArte()">✦ Pagar via PIX e baixar sem marca d'água</button>
+      </div>
+      <button class="btn-voltar" onclick="voltarAoUpload()">← criar outro retrato</button>
+    </div>
+
+    <div class="card-actions" id="cardActions"></div>
+  </div>
+
+  <div class="historico">
+    <h3>Minha Biblioteca de Retratos</h3>
+    <div class="hist-grid" id="histGrid"></div>
+  </div>
+</div>
+
+<script>
+let TOKEN = localStorage.getItem('da_jwt');
+let USUARIO = null;
+let selectedFile = null;
+let pixInterval = null;
+
+window.addEventListener('load', async () => {
+  if (TOKEN) await carregarUsuario();
+  else mostrarLanding();
+});
+
+async function carregarUsuario() {
+  try {
+    const res = await fetch('/api/usuario', { headers: { Authorization: `Bearer ${TOKEN}` } });
+    USUARIO = await res.json();
+    if (USUARIO.erro) { sair(); return; }
+    mostrarLogado();
+  } catch { sair(); }
+}
+
+function mostrarLogado() {
+  document.getElementById('btnLogin').style.display  = 'none';
+  document.getElementById('btnCad').style.display    = 'none';
+  document.getElementById('btnSair').style.display   = 'block';
+  document.getElementById('btnPainel').style.display = 'block';
+  document.getElementById('navEmail').style.display  = 'block';
+  document.getElementById('navCreditos').style.display = 'block';
+  document.getElementById('navEmail').textContent    = USUARIO.email;
+  atualizarCreditos(USUARIO.creditos);
+  mostrarPainel();
+}
+
+function mostrarLanding() {
+  document.getElementById('landing').style.display = 'block';
+  document.getElementById('painel').style.display  = 'none';
+}
+
+function mostrarPainel() {
+  document.getElementById('landing').style.display = 'none';
+  document.getElementById('painel').style.display  = 'block';
+  document.getElementById('painelEmail').textContent = USUARIO.email;
+  renderAcoes();
+  renderHistorico();
+}
+
+function voltarHome() {
+  if (USUARIO) mostrarPainel();
+  else mostrarLanding();
+}
+
+function atualizarCreditos(n) {
+  document.getElementById('creditosNum').textContent   = n;
+  document.getElementById('navCreditos').textContent   = `✏ ${n} crédito(s)`;
+  if (USUARIO) USUARIO.creditos = n;
+}
+
+function renderAcoes() {
+  const area = document.getElementById('cardActions');
+  if (!USUARIO) return;
+  if (USUARIO.creditos > 0) {
+    area.innerHTML = `<button class="btn-main" id="btnGerar" disabled>Selecione uma foto para criar seu retrato</button>`;
+  } else {
+    area.innerHTML = `<button class="btn-main" id="btnGerar" disabled>Selecione uma foto para criar seu retrato</button>`;
+  }
+}
+
+async function renderHistorico() {
+  const grid = document.getElementById('histGrid');
+  grid.innerHTML = '<div class="hist-vazio">Carregando...</div>';
+  try {
+    const res   = await fetch('/api/artes', { headers: { Authorization: `Bearer ${TOKEN}` } });
+    const items = await res.json();
+    if (!items.length) { grid.innerHTML = '<div class="hist-vazio">✏ Seus retratos aparecerão aqui após criar o primeiro.</div>'; return; }
+    grid.innerHTML = items.map(h => `
+      <div class="hist-item">
+        <img src="${h.url_previa}" alt="Retrato">
+        ${!h.pago ? '<div class="hist-lock">🔒 com marca d\'água</div>' : ''}
+        <div class="hist-item-info">
+          <span class="hist-data">${new Date(h.criado_em).toLocaleDateString('pt-BR')}</span>
+          ${h.pago
+            ? `<button class="hist-btn" onclick="baixarImagem('${h.url_final}','retrato.png')">⬇ baixar</button>`
+            : `<button class="hist-btn" onclick="comprarArte()" style="color:var(--pencil)">🔓 liberar</button>`
+          }
+        </div>
+      </div>`).join('');
+  } catch { grid.innerHTML = '<div class="hist-vazio">Erro ao carregar.</div>'; }
+}
+
+const uploadZone = document.getElementById('uploadZone');
+const fileInput  = document.getElementById('fileInput');
+uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('drag'); });
+uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('drag'));
+uploadZone.addEventListener('drop', e => { e.preventDefault(); uploadZone.classList.remove('drag'); const f = e.dataTransfer.files[0]; if (f) handleFile(f); });
+uploadZone.addEventListener('click', () => fileInput.click());
+fileInput.addEventListener('change', e => { if (e.target.files[0]) handleFile(e.target.files[0]); });
+
+function handleFile(file) {
+  selectedFile = file;
+  document.getElementById('previewImg').src = URL.createObjectURL(file);
+  document.getElementById('previewArea').style.display = 'block';
+  document.getElementById('resultArea').style.display  = 'none';
+  document.getElementById('cardActions').innerHTML = `<button class="btn-main" id="btnGerar" onclick="gerarArte()">✏ Criar meu retrato a grafite</button>`;
+}
+
+function trocarFoto() {
+  selectedFile = null;
+  document.getElementById('previewArea').style.display = 'none';
+  document.getElementById('fileInput').value = '';
+  renderAcoes();
+  fileInput.click();
+}
+
+function voltarAoUpload() {
+  selectedFile = null;
+  document.getElementById('resultArea').style.display  = 'none';
+  document.getElementById('previewArea').style.display = 'none';
+  document.getElementById('fileInput').value = '';
+  renderAcoes();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+async function gerarArte() {
+  if (!selectedFile || !TOKEN) return;
+  const btn = document.getElementById('btnGerar');
+  if (btn) btn.disabled = true;
+  document.getElementById('loadingArea').style.display = 'block';
+  document.getElementById('previewArea').style.display = 'none';
+  document.getElementById('resultArea').style.display  = 'none';
+  try {
+    const base64 = await fileToBase64(selectedFile);
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 180000);
+    const res = await fetch('/api/gerar', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${TOKEN}` },
+      body: JSON.stringify({ image: base64 }),
+      signal: controller.signal,
+    });
+    clearTimeout(timeout);
+    const data = await res.json();
+    document.getElementById('loadingArea').style.display = 'none';
+    if (data.sucesso) {
+      document.getElementById('resultImg').src = data.urlPrevia;
+      document.getElementById('resultArea').style.display = 'block';
+      document.getElementById('cardActions').innerHTML = '';
+      renderHistorico();
+    } else {
+      document.getElementById('previewArea').style.display = 'block';
+      renderAcoes();
+    }
+  } catch {
+    document.getElementById('loadingArea').style.display = 'none';
+    document.getElementById('previewArea').style.display = 'block';
+    renderAcoes();
+  }
+}
+
+// Comprar arte — plano fixo de R$5,90
+async function comprarArte() {
+  if (!TOKEN) { abrirOverlay('ovLogin'); return; }
+  document.getElementById('pixQrArea').innerHTML = '<div class="spinner" style="margin:0 auto"></div>';
+  document.getElementById('pixCodigoArea').style.display = 'none';
+  document.getElementById('pixAguardando').style.display = 'none';
+  abrirOverlay('ovPix');
+  try {
+    const res  = await fetch('/api/pagamento/criar', { method:'POST', headers:{'Content-Type':'application/json',Authorization:`Bearer ${TOKEN}`}, body:JSON.stringify({plano:'arte'}) });
+    const data = await res.json();
+    if (data.sucesso) {
+      document.getElementById('pixTitulo').textContent = `Liberar Retrato — R$5,90`;
+      document.getElementById('pixCodigo').textContent = data.pixCopiaECola;
+      if (data.qrCodeBase64) document.getElementById('pixQrArea').innerHTML = `<img src="data:image/png;base64,${data.qrCodeBase64}" style="width:180px;height:180px;border:1.5px solid var(--border)">`;
+      else document.getElementById('pixQrArea').innerHTML = '';
+      document.getElementById('pixCodigoArea').style.display = 'block';
+      document.getElementById('pixAguardando').style.display = 'block';
+      if (pixInterval) clearInterval(pixInterval);
+      pixInterval = setInterval(() => verificarPagamento(data.paymentId), 5000);
+    } else {
+      document.getElementById('pixQrArea').innerHTML = `<p style="color:#7A1A1A;font-weight:600">${data.erro||'Erro ao gerar PIX'}</p>`;
+    }
+  } catch { document.getElementById('pixQrArea').innerHTML = '<p style="color:#7A1A1A;font-weight:600">Erro de conexão.</p>'; }
+}
+
+async function verificarPagamento(paymentId) {
+  try {
+    const res  = await fetch(`/api/pagamento/status/${paymentId}`, { headers:{Authorization:`Bearer ${TOKEN}`} });
+    const data = await res.json();
+    if (data.status === 'approved') {
+      clearInterval(pixInterval);
+      fecharOverlay('ovPix');
+      await carregarUsuario();
+      renderHistorico();
+      // Mostra botão de download
+      document.getElementById('resultArea').style.display = 'none';
+      renderAcoes();
+    }
+  } catch {}
+}
+
+function copiarPix() {
+  navigator.clipboard.writeText(document.getElementById('pixCodigo').textContent).then(() => {
+    const m = document.getElementById('pixMsg'); m.style.display='block'; setTimeout(()=>m.style.display='none',3000);
+  });
+}
+
+async function baixarImagem(url, nome) {
+  try {
+    const res=await fetch(url); const blob=await res.blob();
+    const link=document.createElement('a'); link.href=URL.createObjectURL(blob); link.download=nome||'retrato.png'; link.click(); URL.revokeObjectURL(link.href);
+  } catch { window.open(url,'_blank'); }
+}
+
+function abrirOverlay(id) { document.getElementById(id).classList.add('active'); }
+function fecharOverlay(id) { document.getElementById(id).classList.remove('active'); }
+function trocarOverlay(f, a) { fecharOverlay(f); abrirOverlay(a); }
+function iniciarJornada() { if (TOKEN && USUARIO) mostrarPainel(); else abrirOverlay('ovCadastro'); }
+
+async function fazerLogin() {
+  const email=document.getElementById('loginEmail').value.trim();
+  const senha=document.getElementById('loginSenha').value;
+  const msg=document.getElementById('msgLogin');
+  if (!email||!senha) { showMsg(msg,'Preencha todos os campos.','err'); return; }
+  document.getElementById('btnFazerLogin').disabled=true;
+  const res=await fetch('/api/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,senha})});
+  const data=await res.json();
+  document.getElementById('btnFazerLogin').disabled=false;
+  if (data.sucesso) { TOKEN=data.token; localStorage.setItem('da_jwt',TOKEN); USUARIO={email,creditos:data.creditos}; fecharOverlay('ovLogin'); mostrarLogado(); }
+  else showMsg(msg,data.erro,'err');
+}
+
+async function fazerCadastro() {
+  const email=document.getElementById('cadEmail').value.trim();
+  const senha=document.getElementById('cadSenha').value;
+  const senha2=document.getElementById('cadSenha2').value;
+  const msg=document.getElementById('msgCad');
+  if (!email||!senha) { showMsg(msg,'Preencha todos os campos.','err'); return; }
+  if (senha!==senha2) { showMsg(msg,'As senhas não coincidem.','err'); return; }
+  if (senha.length<6) { showMsg(msg,'Senha muito curta (mín. 6).','err'); return; }
+  document.getElementById('btnFazerCad').disabled=true;
+  const res=await fetch('/api/auth/cadastro',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,senha})});
+  const data=await res.json();
+  document.getElementById('btnFazerCad').disabled=false;
+  if (data.sucesso) { TOKEN=data.token; localStorage.setItem('da_jwt',TOKEN); USUARIO={email,creditos:data.creditos}; fecharOverlay('ovCadastro'); mostrarLogado(); }
+  else showMsg(msg,data.erro,'err');
+}
+
+function sair() {
+  TOKEN=null; USUARIO=null; localStorage.removeItem('da_jwt');
+  ['btnLogin','btnCad'].forEach(id=>document.getElementById(id).style.display='block');
+  ['btnSair','btnPainel','navEmail','navCreditos'].forEach(id=>document.getElementById(id).style.display='none');
+  mostrarLanding();
+}
+
+function showMsg(el,txt,tipo) { el.textContent=txt; el.className='msg '+tipo; el.style.display='block'; setTimeout(()=>el.style.display='none',5000); }
+function fileToBase64(file) { return new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>res(r.result.split(',')[1]); r.onerror=rej; r.readAsDataURL(file); }); }
+</script>
+</body>
+</html>
