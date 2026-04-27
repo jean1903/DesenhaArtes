@@ -66,46 +66,43 @@ async function adicionarMarcaDagua(imageUrl) {
     const w = meta.width || 800;
     const h = meta.height || 800;
 
-    // Tamanho da fonte proporcional à imagem
-    const fontSize = Math.max(16, Math.floor(w / 14));
-    const lineH    = fontSize * 2.0;
-    const textW    = fontSize * 22; // largura aproximada do texto
+    const fontSize = Math.max(18, Math.floor(w / 12));
+    const lineH = Math.floor(fontSize * 2.5);
+    const charW = Math.floor(fontSize * 0.6);
+    const texto = 'NAO RETIRAR A MARCA DA AGUA   ';
+    const textPixelW = texto.length * charW;
 
-    // Gera grid denso de textos diagonais cobrindo TODA a imagem
     let texts = '';
-    const rows = Math.ceil((h + w) / lineH) + 4;
-    const cols = Math.ceil((w + h) / textW) + 3;
+    const totalRows = Math.ceil((w + h) / lineH) + 6;
+    const totalCols = Math.ceil((w + h) / textPixelW) + 4;
 
-    for (let r = -2; r < rows; r++) {
-      for (let c = -2; c < cols; c++) {
-        const x = c * textW + (r % 2 === 0 ? 0 : textW / 2) - w * 0.3;
-        const y = r * lineH - h * 0.1;
-        texts += `<text x="${x}" y="${y}" transform="rotate(-20,${x},${y})">NAO RETIRAR A MARCA DA AGUA</text>`;
+    for (let r = 0; r < totalRows; r++) {
+      for (let c = 0; c < totalCols; c++) {
+        const offset = (r % 2 === 0) ? 0 : Math.floor(textPixelW / 2);
+        const x = c * textPixelW + offset - w * 0.5;
+        const y = r * lineH - h * 0.3;
+        texts += `<text x="${x}" y="${y}" fill="rgba(30,30,30,0.50)" font-family="Arial" font-size="${fontSize}" font-weight="bold" transform="rotate(-25,${x},${y})">${texto}</text>`;
       }
     }
 
-    const svg = `<svg width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg">
-      <style>
-        text {
-          font-family: Arial Black, Arial, sans-serif;
-          font-size: ${fontSize}px;
-          font-weight: 900;
-          fill: rgba(40,40,40,0.38);
-          letter-spacing: 2px;
-        }
-      </style>
-      ${texts}
-    </svg>`;
+    const svg = `<svg width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg" overflow="visible">${texts}</svg>`;
 
-    const wm = Buffer.from(svg);
+    // Sharp requer SVG com dimensões explícitas para composite
+    const svgBuf = Buffer.from(svg);
+    const wmPng = await sharp(svgBuf)
+      .resize(w, h, { fit: 'contain', background: { r:0, g:0, b:0, alpha:0 } })
+      .png()
+      .toBuffer()
+      .catch(() => svgBuf);
+
     const result = await sharp(imgBuffer)
-      .composite([{ input: wm, blend: 'over' }])
+      .composite([{ input: svgBuf, blend: 'over' }])
       .jpeg({ quality: 90 })
       .toBuffer();
 
     return result.toString('base64');
   } catch(e) {
-    console.error('Erro marca dagua:', e.message);
+    console.error('Erro marca dagua:', e.message, e.stack);
     return null;
   }
 }
