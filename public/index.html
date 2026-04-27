@@ -190,7 +190,6 @@ footer{text-align:center;padding:2rem;color:var(--ink3);border-top:1.5px solid v
     DesenhaArte
   </a>
   <div class="nav-right">
-    <span id="navCreditos"></span>
     <span id="navEmail"></span>
     <button class="btn-nav" id="btnPainel" style="display:none" onclick="mostrarPainel()">Meu Painel</button>
     <button class="btn-nav" id="btnLogin" onclick="abrirOverlay('ovLogin')">Entrar</button>
@@ -336,7 +335,6 @@ footer{text-align:center;padding:2rem;color:var(--ink3);border-top:1.5px solid v
       <div class="painel-titulo">Meu Painel</div>
       <div style="color:var(--ink3);font-family:'Caveat',cursive;font-size:1rem;margin-top:.2rem;font-weight:500" id="painelEmail"></div>
     </div>
-    <div class="cred-badge">✏ <span id="creditosNum">0</span> crédito(s)</div>
   </div>
 
   <div class="upload-card">
@@ -436,18 +434,14 @@ function voltarHome() {
 
 function atualizarCreditos(n) {
   document.getElementById('creditosNum').textContent   = n;
-  document.getElementById('navCreditos').textContent   = `✏ ${n} crédito(s)`;
+  
   if (USUARIO) USUARIO.creditos = n;
 }
 
 function renderAcoes() {
   const area = document.getElementById('cardActions');
   if (!USUARIO) return;
-  if (USUARIO.creditos > 0) {
-    area.innerHTML = `<button class="btn-main" id="btnGerar" disabled>Selecione uma foto para criar seu retrato</button>`;
-  } else {
-    area.innerHTML = `<button class="btn-main" id="btnGerar" disabled>Selecione uma foto para criar seu retrato</button>`;
-  }
+  area.innerHTML = `<button class="btn-main" id="btnGerar" disabled>Selecione uma foto para criar seu retrato</button>`;
 }
 
 async function renderHistorico() {
@@ -485,7 +479,7 @@ function handleFile(file) {
   document.getElementById('previewImg').src = URL.createObjectURL(file);
   document.getElementById('previewArea').style.display = 'block';
   document.getElementById('resultArea').style.display  = 'none';
-  document.getElementById('cardActions').innerHTML = `<button class="btn-main" id="btnGerar" onclick="gerarArte()">✏ Criar meu retrato a grafite</button>`;
+  document.getElementById('cardActions').innerHTML = `<button class="btn-main" id="btnGerar" onclick="gerarArte()">Criar minha arte agora</button>`;
 }
 
 function trocarFoto() {
