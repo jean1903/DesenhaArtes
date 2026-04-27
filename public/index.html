@@ -175,123 +175,136 @@ footer{text-align:center;padding:2rem;color:var(--ink3);border-top:1.5px solid v
 /* ── MOBILE RESPONSIVO ── */
 @media(max-width:768px){
   /* NAV */
-  nav{padding:.7rem 1rem;gap:.5rem}
-  .logo{font-size:1.2rem}
+  nav{padding:.8rem 1rem;gap:.5rem}
+  .logo{font-size:1.3rem}
   .logo-sub{display:none}
-  .btn-nav{padding:.3rem .7rem;font-size:.75rem}
-  #navEmail{max-width:100px;font-size:.72rem}
+  .btn-nav{padding:.4rem .9rem;font-size:.85rem}
+  #navEmail{max-width:120px;font-size:.82rem}
 
   /* HERO */
   .hero{padding:3rem 1.2rem 2.5rem}
-  h1{font-size:1.8rem;line-height:1.1}
-  .subtitle{font-size:.9rem;margin-bottom:1.2rem}
-  .beneficios{gap:.4rem}
-  .beneficio{font-size:.82rem;padding:.3rem .7rem}
-  .btn-cta{padding:.9rem 1.8rem;font-size:.92rem;width:100%;display:block;text-align:center}
-  .tag-ms{font-size:.9rem}
-  .urgencia{font-size:.9rem;padding:.3rem .8rem}
+  h1{font-size:2rem;line-height:1.1}
+  .subtitle{font-size:1rem;margin-bottom:1.2rem;line-height:1.75}
+  .beneficios{gap:.5rem}
+  .beneficio{font-size:1rem;padding:.4rem .9rem}
+  .btn-cta{padding:1rem 1.8rem;font-size:1rem;width:100%;display:block;text-align:center}
+  .tag-ms{font-size:1rem}
+  .urgencia{font-size:1rem;padding:.4rem 1rem}
 
   /* SECTIONS */
   .section{padding:3rem 1.2rem}
-  .section-title{font-size:1.6rem}
-  .section-sub{font-size:.85rem;margin-bottom:2rem}
-  .section-label{font-size:1rem}
+  .section-title{font-size:1.8rem}
+  .section-sub{font-size:.95rem;margin-bottom:2rem}
+  .section-label{font-size:1.1rem}
 
   /* EXEMPLOS */
   .ex-grid{grid-template-columns:1fr;gap:1.2rem}
   .ex-card img{height:220px}
-  .ex-footer{font-size:.95rem}
+  .ex-footer{font-size:1.05rem}
 
   /* COMO FUNCIONA */
   .steps{grid-template-columns:1fr;gap:1.5rem;text-align:left}
   .step{display:flex;align-items:flex-start;gap:1rem;text-align:left}
-  .step-num{min-width:44px;margin:0;flex-shrink:0}
-  .step h4{margin-bottom:.3rem}
+  .step-num{min-width:48px;height:48px;margin:0;flex-shrink:0;font-size:1.2rem}
+  .step h4{margin-bottom:.3rem;font-size:1.05rem}
+  .step p{font-size:.95rem;line-height:1.7}
 
   /* DEPOIMENTOS */
   .deps-grid{grid-template-columns:1fr;gap:1rem}
-  .dep p{font-size:.85rem}
+  .dep p{font-size:.95rem;line-height:1.8}
+  .dep-autor{font-size:1.05rem}
+  .dep-stars{font-size:1rem}
 
   /* STATS */
   .stats{gap:1.5rem;flex-direction:row;flex-wrap:wrap;justify-content:center;padding:2rem 1rem}
-  .stat-num{font-size:2rem}
-  .stat-label{font-size:.9rem}
+  .stat-num{font-size:2.2rem}
+  .stat-label{font-size:1rem}
 
   /* PLANOS */
   .planos-wrap{grid-template-columns:1fr;gap:1rem;max-width:100%}
-  .plano{padding:1.5rem 1.2rem}
-  .plano-preco{font-size:2rem}
+  .plano{padding:1.8rem 1.5rem}
+  .plano-preco{font-size:2.2rem}
+  .plano-nome{font-size:.9rem}
+  .plano-desc{font-size:.95rem}
+  .plano-btn{font-size:.95rem;padding:.85rem}
 
   /* FOOTER CTA */
   #landing > div:last-of-type{padding:3rem 1.2rem}
-  #landing > div:last-of-type div{font-size:1.4rem}
+  #landing > div:last-of-type div{font-size:1.5rem}
+  #landing > div:last-of-type p{font-size:1rem}
 
   /* PAINEL */
   #painel{padding:1rem}
-  .painel-header{flex-direction:column;align-items:flex-start;gap:.4rem;margin-bottom:1.2rem}
-  .painel-titulo{font-size:1.3rem}
-  .cred-badge{font-size:.9rem;padding:.4rem .9rem}
+  .painel-header{flex-direction:column;align-items:flex-start;gap:.5rem;margin-bottom:1.5rem}
+  .painel-titulo{font-size:1.4rem}
+  .cred-badge{font-size:1rem;padding:.5rem 1rem}
 
   /* UPLOAD CARD */
   .upload-card{margin-bottom:1.5rem}
-  .upload-zone{padding:2rem 1.2rem}
-  .upload-icon{font-size:2rem}
-  .upload-zone h3{font-size:1rem}
-  .upload-zone p{font-size:.9rem}
+  .upload-zone{padding:2.2rem 1.5rem}
+  .upload-icon{font-size:2.5rem}
+  .upload-zone h3{font-size:1.1rem}
+  .upload-zone p{font-size:1rem}
 
-  #previewArea > div:first-child{padding:.8rem 1rem .4rem}
-  #previewArea > div:last-child{padding:0 1rem 1rem}
-  .preview-img{max-height:250px}
+  #previewArea > div:first-child{padding:.9rem 1.2rem .5rem}
+  #previewArea > div:last-child{padding:0 1.2rem 1.2rem}
+  .preview-img{max-height:260px}
 
-  #loadingArea{padding:2rem 1rem}
-  #loadingArea p{font-size:1rem}
+  #loadingArea{padding:2.2rem 1.2rem}
+  #loadingArea p{font-size:1.1rem;line-height:1.6}
 
-  #resultArea{padding:1rem}
-  .liberar-box{padding:1.2rem}
-  .liberar-titulo{font-size:1rem}
-  .liberar-box p{font-size:.83rem}
-  .liberar-preco{font-size:1.6rem}
-  .btn-liberar{padding:.85rem 1rem;font-size:.92rem}
-  .btn-voltar{font-size:.92rem;padding:.65rem}
+  #resultArea{padding:1.2rem}
+  .liberar-box{padding:1.4rem}
+  .liberar-titulo{font-size:1.1rem}
+  .liberar-box p{font-size:.95rem;line-height:1.65}
+  .liberar-preco{font-size:1.8rem}
+  .btn-liberar{padding:.95rem 1rem;font-size:1rem}
+  .btn-voltar{font-size:1rem;padding:.7rem}
 
-  #planosArea{padding:1.2rem}
-  .planos-mini{grid-template-columns:1fr 1fr;gap:.5rem}
-  .plano-mini{padding:.8rem}
-  .pm-preco{font-size:1.1rem}
-  .pm-imgs{font-size:.78rem}
+  #planosArea{padding:1.4rem}
+  .planos-mini{grid-template-columns:1fr 1fr;gap:.7rem}
+  .plano-mini{padding:1rem}
+  .pm-preco{font-size:1.25rem}
+  .pm-nome{font-size:.82rem}
+  .pm-imgs{font-size:.88rem}
+  .pm-badge{font-size:.88rem}
+  .info-box{font-size:1rem;padding:1rem}
 
-  .card-actions{padding:1rem}
-  .btn-main,.btn-outline{padding:.85rem;font-size:.9rem}
+  .card-actions{padding:1.2rem}
+  .btn-main,.btn-outline{padding:.95rem;font-size:1rem}
 
   /* HISTÓRICO */
-  .historico{margin-top:1.5rem}
-  .historico h3{font-size:1.1rem}
-  .hist-grid{grid-template-columns:repeat(2,1fr);gap:.7rem}
-  .hist-item img{height:130px}
-  .hist-item-info{padding:.5rem .6rem}
-  .hist-data{font-size:.82rem}
-  .hist-btn{font-size:.8rem;padding:.18rem .4rem}
-  .hist-vazio{font-size:.95rem;padding:1.5rem}
+  .historico{margin-top:1.8rem}
+  .historico h3{font-size:1.2rem}
+  .hist-grid{grid-template-columns:repeat(2,1fr);gap:.8rem}
+  .hist-item img{height:140px}
+  .hist-item-info{padding:.6rem .8rem}
+  .hist-data{font-size:.9rem}
+  .hist-btn{font-size:.88rem;padding:.25rem .5rem}
+  .hist-vazio{font-size:1.05rem;padding:2rem}
 
   /* MODAIS */
-  .modal{padding:1.5rem;border-radius:4px;max-height:90vh;overflow-y:auto}
-  .modal h3{font-size:1.2rem}
-  .modal-sub{font-size:.82rem;margin-bottom:1rem}
-  .field label{font-size:.7rem}
-  .field input{padding:.7rem .9rem;font-size:.88rem}
-  .btn-ink{padding:.85rem;font-size:.9rem}
-  .modal-switch{font-size:.8rem}
+  .modal{padding:1.8rem 1.5rem;max-height:92vh;overflow-y:auto}
+  .modal h3{font-size:1.35rem}
+  .modal-sub{font-size:.92rem;margin-bottom:1.2rem;line-height:1.65}
+  .field label{font-size:.78rem;letter-spacing:.6px}
+  .field input{padding:.8rem 1rem;font-size:.95rem}
+  .btn-ink{padding:.9rem;font-size:1rem}
+  .modal-switch{font-size:.88rem}
+  .msg{font-size:.9rem}
 
   /* PIX MODAL */
-  #pixQrArea img{width:150px !important;height:150px !important}
-  .pix-code{font-size:.68rem;padding:.6rem}
+  #pixQrArea img{width:160px !important;height:160px !important}
+  .pix-code{font-size:.75rem;padding:.7rem}
+  #pixCodigoArea .btn-ink{font-size:.95rem}
 }
 
-@media(max-width:380px){
-  h1{font-size:1.55rem}
+@media(max-width:400px){
+  h1{font-size:1.7rem}
   .hist-grid{grid-template-columns:1fr}
   .planos-mini{grid-template-columns:1fr}
-  nav .btn-nav.dark{display:none}
+  .beneficio{font-size:.92rem}
+  .modal{padding:1.4rem 1.2rem}
 }
 </style>
 </head>
