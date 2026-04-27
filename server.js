@@ -66,6 +66,83 @@ async function adicionarMarcaDagua(imageUrl) {
     const w = meta.width || 800;
     const h = meta.height || 800;
 
+    const fontSize = Math.max(22, Math.floor(w / 13));
+    const texto = 'NAO RETIRE A MARCA DAGUA';
+    const lineH = Math.floor(fontSize * 3.5);
+    const colW  = Math.floor(fontSize * 16);
+
+    const rows = Math.ceil((w + h) / lineH) + 6;
+    const cols = Math.ceil((w + h) / colW) + 4;
+
+    let texts = '';
+    for (let r = -3; r < rows; r++) {
+      for (let c = -3; c < cols; c++) {
+        const x = c * colW + (r % 2 === 0 ? 0 : colW / 2) - w * 0.4;
+        const y = r * lineH - h * 0.2;
+        texts += `<text
+          x="${x}" y="${y}"
+          font-family="Arial"
+          font-size="${fontSize}"
+          font-weight="bold"
+          fill="#1a1a1a"
+          fill-opacity="0.55"
+          transform="rotate(-30 ${x} ${y})"
+        >${texto}</text>`;
+      }
+    }
+
+    // Linha central grande
+    const bigSize = Math.floor(w / 9);
+    texts += `<text
+      x="${w/2}" y="${h/2}"
+      font-family="Arial"
+      font-size="${bigSize}"
+      font-weight="bold"
+      fill="#0a0a0a"
+      fill-opacity="0.60"
+      text-anchor="middle"
+      dominant-baseline="middle"
+      transform="rotate(-30 ${w/2} ${h/2})"
+    >${texto}</text>`;
+
+    const svg = `<svg width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg">
+      <rect width="${w}" height="${h}" fill="none"/>
+      ${texts}
+    </svg>`;
+
+    const svgBuf = Buffer.from(svg, 'utf8');
+
+    const result = await sharp(imgBuffer)
+      .composite([{ input: svgBuf, blend: 'over' }])
+      .jpeg({ quality: 90 })
+      .toBuffer();
+
+    return result.toString('base64');
+  } catch(e) {
+    console.error('Erro marca dagua:', e.message);
+    console.error(e.stack);
+    return null;
+  }
+}
+
+async function uploadImgBB(base64) {
+  const form = new FormData();
+  form.append('image', base64);
+  const res = await axios.post(
+    `https://api.imgbb.com/1/upload?key=${process.env.IMGBB_API_KEY}`,
+    form, { headers: form.getHeaders(), timeout: 30000 }
+  );
+  return res.data.data.url;
+}
+
+async function adicionarMarcaDagua(imageUrl) {
+  try {
+    const imgRes = await axios.get(imageUrl, { responseType: 'arraybuffer' });
+    const imgBuffer = Buffer.from(imgRes.data);
+    const meta = await sharp(imgBuffer).metadata();
+    const w = meta.width || 800;
+    const h = meta.height || 800;
+
     // Configuracoes identicas ao modelo
     const fontSize = Math.max(20, Math.floor(w / 16));
     const angle = -30;
