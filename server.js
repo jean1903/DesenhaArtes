@@ -134,9 +134,6 @@ app.get('/api/usuario', auth, async (req, res) => {
 
 // ── GERAR ARTE ────────────────────────────────────
 app.post('/api/gerar', auth, async (req, res) => {
-  const u = await db.getUsuario(req.email);
-  if (!u || u.creditos < 1) return res.json({ sucesso: false, semCreditos: true });
-
   try {
     const { image } = req.body;
     if (!image) return res.json({ sucesso: false, erro: 'Imagem não recebida.' });
@@ -177,10 +174,9 @@ app.post('/api/gerar', auth, async (req, res) => {
             }
 
             // Desconta crédito e salva
-            const novos = await db.descontarCredito(req.email);
             await db.salvarArte(req.email, urlPrevia, urlFinal);
 
-            return res.json({ sucesso: true, urlPrevia, creditos: novos });
+            return res.json({ sucesso: true, urlPrevia });
           }
         } catch(e) { console.log('Erro parse:', e.message); }
       }
