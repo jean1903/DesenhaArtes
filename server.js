@@ -6,6 +6,7 @@ const FormData = require('form-data');
 const jwt      = require('jsonwebtoken');
 const bcrypt   = require('bcryptjs');
 const sharp    = require('sharp');
+const Jimp     = require('jimp');
 const { v4: uuidv4 } = require('uuid');
 const db       = require('./db');
 
@@ -46,6 +47,71 @@ function auth(req, res, next) {
   if (!token) return res.status(401).json({ erro: 'Não autenticado.' });
   try { req.email = jwt.verify(token, JWT_SECRET).email; next(); }
   catch { res.status(401).json({ erro: 'Token inválido.' }); }
+}
+
+async function uploadImgBB(base64) {
+  const form = new FormData();
+  form.append('image', base64);
+  const res = await axios.post(
+    `https://api.imgbb.com/1/upload?key=${process.env.IMGBB_API_KEY}`,
+    form, { headers: form.getHeaders(), timeout: 30000 }
+  );
+  return res.data.data.url;
+}
+
+async function adicionarMarcaDagua(imageUrl) {
+  try {
+    const imgRes = await axios.get(imageUrl, { responseType: 'arraybuffer' });
+    const imgBuffer = Buffer.from(imgRes.data);
+
+    // Carrega imagem com Jimp
+    const img = await Jimp.read(imgBuffer);
+    const w = img.getWidth();
+    const h = img.getHeight();
+
+    // Carrega fonte embutida do Jimp (nao precisa de fontes do sistema)
+    const fontLarge  = await Jimp.loadFont(Jimp.FONT_SANS_64_BLACK);
+    const fontMedium = await Jimp.loadFont(Jimp.FONT_SANS_32_BLACK);
+
+    const texto = 'NAO RETIRE A MARCA DAGUA';
+    const textW64 = Jimp.measureText(fontLarge, texto);
+    const textH64 = Jimp.measureTextHeight(fontLarge, texto, 9999);
+    const textW32 = Jimp.measureText(fontMedium, texto);
+
+    // Cria overlay transparente
+    const overlay = new Jimp(w, h, 0x00000000);
+
+    // Pinta texto em grade diagonal com fonte media
+    const stepX = textW32 + 40;
+    const stepY = 90;
+    for (let y = -stepY; y < h + stepY; y += stepY) {
+      for (let x = -stepX; x < w + stepX; x += stepX) {
+        const ox = (Math.floor(y / stepY) % 2 === 0) ? x : x + stepX / 2;
+        overlay.print(fontMedium, ox, y, { text: texto, alignmentX: Jimp.HORIZONTAL_ALIGN_LEFT }, w, h);
+      }
+    }
+
+    // Linha central grande
+    const centerY = Math.floor(h / 2 - textH64 / 2);
+    const centerX = Math.floor((w - textW64) / 2);
+    overlay.print(fontLarge, centerX, centerY, texto);
+
+    // Define opacidade do overlay
+    overlay.opacity(0.55);
+
+    // Composita overlay na imagem original
+    img.composite(overlay, 0, 0, {
+      mode: Jimp.BLEND_SOURCE_OVER,
+      opacitySource: 0.55,
+      opacityDest: 1,
+    });
+
+    const resultBuf = await img.getBufferAsync(Jimp.MIME_JPEG);
+    return resultBuf.toString('base64');
+  } catch(e) {
+    console.error('Erro marca dagua Jimp:', e.message);
+    return null;
+  }
 }
 
 async function uploadImgBB(base64) {
