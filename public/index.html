@@ -2,10 +2,15 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>DesenhaArte — Seu Retrato em Desenho a Lápis com IA</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500;600&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@400;500;600&family=Caveat:wght@500&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@400;500;600&family=Caveat:wght@500&display=swap" rel="stylesheet"></noscript>
 <style>
+*{-webkit-font-smoothing:antialiased}
 :root{
   --paper:#F7F4EF;
   --paper2:#EDE8E0;
@@ -24,7 +29,7 @@ html{scroll-behavior:smooth}
 body{
   background:var(--paper);
   color:var(--ink);
-  font-family:'DM Sans',sans-serif;
+  font-family:'DM Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
   min-height:100vh;
   overflow-x:hidden;
 }
@@ -38,28 +43,28 @@ body::before{
 
 /* NAV */
 nav{padding:1rem 2rem;display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid var(--border);position:sticky;top:0;background:rgba(247,244,239,0.97);backdrop-filter:blur(8px);z-index:200}
-.logo{font-family:'Playfair Display',serif;font-size:1.6rem;color:var(--ink);letter-spacing:1px;text-decoration:none;display:flex;align-items:center;gap:.5rem;font-weight:700}
+.logo{font-family:'Playfair Display',Georgia,serif;font-size:1.6rem;color:var(--ink);letter-spacing:1px;text-decoration:none;display:flex;align-items:center;gap:.5rem;font-weight:700}
 .nav-right{display:flex;align-items:center;gap:.7rem;flex-wrap:wrap}
 #navCreditos{font-size:.82rem;color:var(--ink);border:1.5px solid var(--border);padding:.3rem .9rem;border-radius:3px;display:none;white-space:nowrap;background:var(--paper2);font-weight:600}
 #navEmail{font-size:.8rem;color:var(--ink3);display:none;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500}
-.btn-nav{background:none;border:1.5px solid var(--border);color:var(--ink);padding:.4rem 1rem;border-radius:3px;cursor:pointer;font-size:.82rem;font-family:'DM Sans',sans-serif;font-weight:500;transition:all .2s;white-space:nowrap}
+.btn-nav{background:none;border:1.5px solid var(--border);color:var(--ink);padding:.4rem 1rem;border-radius:3px;cursor:pointer;font-size:.82rem;font-family:'DM Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-weight:500;transition:all .2s;white-space:nowrap}
 .btn-nav:hover{border-color:var(--ink);background:var(--paper2)}
 .btn-nav.dark{background:var(--ink);color:var(--paper);border-color:var(--ink)}
 .btn-nav.dark:hover{background:var(--ink2)}
 
 /* OVERLAY */
-.overlay{display:none;position:fixed;inset:0;background:rgba(26,21,18,0.65);z-index:999;align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(4px)}
+.overlay{display:none;position:fixed;will-change:opacity;inset:0;background:rgba(26,21,18,0.65);z-index:999;align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(4px)}
 .overlay.active{display:flex}
-.modal{background:var(--paper);border:1.5px solid var(--border);border-radius:4px;padding:2rem;width:100%;max-width:420px;position:relative;animation:fadeUp .2s ease;box-shadow:0 8px 40px var(--shadow)}
-@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
-.modal h3{font-family:'Playfair Display',serif;font-size:1.4rem;margin-bottom:.4rem;color:var(--ink);font-weight:700}
+.modal{background:var(--paper);border:1.5px solid var(--border);border-radius:4px;padding:2rem;width:100%;max-width:420px;position:relative;animation:fadeUp .15s ease;box-shadow:0 8px 40px var(--shadow)}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.modal h3{font-family:'Playfair Display',Georgia,serif;font-size:1.4rem;margin-bottom:.4rem;color:var(--ink);font-weight:700}
 .modal-sub{color:var(--ink3);font-size:.88rem;margin-bottom:1.4rem;line-height:1.6;font-weight:400}
 .modal-close{position:absolute;top:1rem;right:1rem;background:none;border:none;color:var(--ink3);font-size:1.1rem;cursor:pointer;font-size:1.3rem}
 .field{margin-bottom:.9rem}
 .field label{display:block;font-size:.75rem;color:var(--ink2);margin-bottom:.4rem;letter-spacing:.8px;text-transform:uppercase;font-weight:600}
-.field input{width:100%;background:var(--paper2);border:1.5px solid var(--border);color:var(--ink);padding:.8rem 1rem;border-radius:3px;font-size:.92rem;font-family:'DM Sans',sans-serif;font-weight:400;transition:border .2s}
+.field input{width:100%;background:var(--paper2);border:1.5px solid var(--border);color:var(--ink);padding:.8rem 1rem;border-radius:3px;font-size:.92rem;font-family:'DM Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-weight:400;transition:border .2s}
 .field input:focus{outline:none;border-color:var(--ink)}
-.btn-ink{width:100%;background:var(--ink);color:var(--paper);border:none;padding:.95rem;border-radius:3px;font-size:.95rem;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s;margin-top:.4rem;letter-spacing:.3px}
+.btn-ink{width:100%;background:var(--ink);color:var(--paper);border:none;padding:.95rem;border-radius:3px;font-size:.95rem;font-weight:600;cursor:pointer;font-family:'DM Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;transition:all .2s;margin-top:.4rem;letter-spacing:.3px}
 .btn-ink:hover{background:var(--ink2);transform:translateY(-1px)}
 .btn-ink:disabled{background:var(--pencil-l);cursor:not-allowed;transform:none}
 .modal-switch{text-align:center;margin-top:1rem;font-size:.85rem;color:var(--ink3);font-weight:400}
@@ -71,13 +76,13 @@ nav{padding:1rem 2rem;display:flex;justify-content:space-between;align-items:cen
 /* HERO */
 .hero{padding:6rem 2rem 4rem;text-align:center;position:relative;overflow:hidden}
 .tag-ms{display:inline-block;font-family:'Caveat',cursive;font-size:1.2rem;color:var(--pencil);border-bottom:2px solid var(--pencil-l);padding-bottom:.1rem;margin-bottom:1.5rem;font-weight:700;letter-spacing:.5px}
-h1{font-family:'Playfair Display',serif;font-size:clamp(2.4rem,5.5vw,5rem);font-weight:700;line-height:1.05;margin-bottom:1.2rem;color:var(--ink);letter-spacing:-.5px}
+h1{font-family:'Playfair Display',Georgia,serif;font-size:clamp(2.4rem,5.5vw,5rem);font-weight:700;line-height:1.05;margin-bottom:1.2rem;color:var(--ink);letter-spacing:-.5px}
 h1 em{font-style:italic;color:var(--pencil);font-weight:400}
 .subtitle{color:var(--ink3);font-size:1.05rem;max-width:540px;margin:0 auto 2rem;line-height:1.8;font-weight:400}
 .beneficios{display:flex;flex-wrap:wrap;justify-content:center;gap:.5rem;margin-bottom:2rem}
 .beneficio{font-size:.88rem;color:var(--ink2);border:1.5px solid var(--border);padding:.35rem 1rem;border-radius:2px;font-family:'Caveat',cursive;font-size:1rem;font-weight:500;background:white}
 .urgencia{display:inline-block;font-family:'Caveat',cursive;font-size:1.05rem;color:var(--pencil);margin-bottom:2rem;padding:.4rem 1.2rem;border:1.5px dashed var(--pencil-l);border-radius:2px;font-weight:700}
-.btn-cta{display:inline-block;background:var(--ink);color:var(--paper);padding:1.1rem 2.8rem;border-radius:3px;font-size:1.05rem;font-weight:600;text-decoration:none;cursor:pointer;border:none;font-family:'DM Sans',sans-serif;transition:all .2s;margin-bottom:.8rem;letter-spacing:.3px}
+.btn-cta{display:inline-block;background:var(--ink);color:var(--paper);padding:1.1rem 2.8rem;border-radius:3px;font-size:1.05rem;font-weight:600;text-decoration:none;cursor:pointer;border:none;font-family:'DM Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;transition:all .2s;margin-bottom:.8rem;letter-spacing:.3px}
 .btn-cta:hover{background:var(--ink2);transform:translateY(-2px);box-shadow:0 6px 24px var(--shadow)}
 .cta-note{font-family:'Caveat',cursive;font-size:1.05rem;color:var(--pencil);display:block;margin-top:.6rem;font-weight:500}
 
@@ -85,7 +90,7 @@ h1 em{font-style:italic;color:var(--pencil);font-weight:400}
 .section{padding:5rem 2rem;border-top:1.5px solid var(--border)}
 .section.bg2{background:var(--paper2)}
 .section-label{font-family:'Caveat',cursive;font-size:1.1rem;color:var(--pencil);text-align:center;margin-bottom:.5rem;letter-spacing:1px;font-weight:700}
-.section-title{text-align:center;font-family:'Playfair Display',serif;font-size:clamp(1.8rem,3vw,2.8rem);font-weight:700;margin-bottom:.6rem;color:var(--ink)}
+.section-title{text-align:center;font-family:'Playfair Display',Georgia,serif;font-size:clamp(1.8rem,3vw,2.8rem);font-weight:700;margin-bottom:.6rem;color:var(--ink)}
 .section-sub{text-align:center;color:var(--ink3);font-size:.95rem;margin-bottom:3rem;font-weight:400}
 
 .ex-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:2rem;max-width:1100px;margin:0 auto}
@@ -96,7 +101,7 @@ h1 em{font-style:italic;color:var(--pencil);font-weight:400}
 /* COMO */
 .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:2rem;max-width:800px;margin:2.5rem auto 0}
 .step{text-align:center}
-.step-num{width:50px;height:50px;border:2px solid var(--ink);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;font-family:'Playfair Display',serif;font-size:1.3rem;color:var(--ink);font-weight:700}
+.step-num{width:50px;height:50px;border:2px solid var(--ink);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;font-family:'Playfair Display',Georgia,serif;font-size:1.3rem;color:var(--ink);font-weight:700}
 .step h4{font-size:1rem;margin-bottom:.4rem;color:var(--ink);font-weight:600}
 .step p{font-size:.88rem;color:var(--ink3);line-height:1.7;font-weight:400}
 
@@ -109,21 +114,21 @@ h1 em{font-style:italic;color:var(--pencil);font-weight:400}
 
 /* STATS */
 .stats{display:flex;justify-content:center;gap:4rem;padding:3rem 2rem;border-top:1.5px solid var(--border);border-bottom:1.5px solid var(--border);background:var(--paper2)}
-.stat-num{font-family:'Playfair Display',serif;font-size:2.8rem;color:var(--ink);font-weight:700}
+.stat-num{font-family:'Playfair Display',Georgia,serif;font-size:2.8rem;color:var(--ink);font-weight:700}
 .stat-label{font-family:'Caveat',cursive;font-size:1.05rem;color:var(--pencil);font-weight:600}
 footer{text-align:center;padding:2rem;color:var(--ink3);border-top:1.5px solid var(--border);font-family:'Caveat',cursive;font-size:1.05rem;font-weight:500}
 
 /* PAINEL */
 #painel{display:none;min-height:100vh;padding:2rem;background:var(--paper)}
 .painel-header{max-width:700px;margin:0 auto 2rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem;padding-bottom:1rem;border-bottom:2px solid var(--border)}
-.painel-titulo{font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:700;color:var(--ink)}
+.painel-titulo{font-family:'Playfair Display',Georgia,serif;font-size:1.6rem;font-weight:700;color:var(--ink)}
 .cred-badge{background:var(--paper2);border:1.5px solid var(--border);padding:.5rem 1.2rem;font-family:'Caveat',cursive;font-size:1.05rem;color:var(--ink);font-weight:700}
 
 .upload-card{max-width:700px;margin:0 auto 2rem;background:white;border:1.5px solid var(--border);box-shadow:4px 4px 0 var(--border2)}
 .upload-zone{padding:3rem 2rem;text-align:center;cursor:pointer;border-bottom:1.5px solid var(--border);transition:background .2s}
 .upload-zone:hover,.upload-zone.drag{background:var(--paper2)}
 .upload-icon{font-size:3rem;margin-bottom:.8rem;display:block}
-.upload-zone h3{font-family:'Playfair Display',serif;font-weight:700;font-size:1.2rem;margin-bottom:.4rem;color:var(--ink)}
+.upload-zone h3{font-family:'Playfair Display',Georgia,serif;font-weight:700;font-size:1.2rem;margin-bottom:.4rem;color:var(--ink)}
 .upload-zone p{color:var(--ink3);font-family:'Caveat',cursive;font-size:1.05rem;font-weight:500}
 #fileInput{display:none}
 #previewArea{display:none;padding:1.2rem;border-bottom:1.5px solid var(--border)}
@@ -137,23 +142,23 @@ footer{text-align:center;padding:2rem;color:var(--ink3);border-top:1.5px solid v
 .result-preview img{width:100%;display:block;border:1.5px solid var(--border)}
 .wm-badge{position:absolute;top:.6rem;right:.6rem;background:rgba(26,21,18,.85);color:var(--paper);font-family:'Caveat',cursive;font-size:.95rem;padding:.3rem .8rem;font-weight:600}
 .liberar-box{background:var(--paper2);border:1.5px solid var(--border);padding:1.5rem;text-align:center;margin-top:1rem}
-.liberar-titulo{font-family:'Playfair Display',serif;font-size:1.1rem;margin-bottom:.5rem;color:var(--ink);font-weight:700}
+.liberar-titulo{font-family:'Playfair Display',Georgia,serif;font-size:1.1rem;margin-bottom:.5rem;color:var(--ink);font-weight:700}
 .liberar-box p{font-size:.9rem;color:var(--ink3);margin-bottom:1rem;line-height:1.6;font-weight:400}
-.liberar-preco{font-family:'Playfair Display',serif;font-size:2rem;color:var(--ink);font-weight:700;margin-bottom:1rem}
-.btn-liberar{background:var(--ink);color:var(--paper);border:none;padding:1rem 2rem;font-size:1rem;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s;width:100%;letter-spacing:.3px;border-radius:2px}
+.liberar-preco{font-family:'Playfair Display',Georgia,serif;font-size:2rem;color:var(--ink);font-weight:700;margin-bottom:1rem}
+.btn-liberar{background:var(--ink);color:var(--paper);border:none;padding:1rem 2rem;font-size:1rem;font-weight:600;cursor:pointer;font-family:'DM Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;transition:all .2s;width:100%;letter-spacing:.3px;border-radius:2px}
 .btn-liberar:hover{background:var(--ink2);transform:translateY(-1px)}
 .btn-voltar{width:100%;background:transparent;border:1.5px solid var(--border);color:var(--ink3);padding:.75rem;font-family:'Caveat',cursive;font-size:1.05rem;font-weight:600;margin-top:.8rem;cursor:pointer;transition:all .2s}
 .btn-voltar:hover{border-color:var(--ink);color:var(--ink)}
 .card-actions{padding:1.2rem}
-.btn-main{width:100%;background:var(--ink);color:var(--paper);border:none;padding:1rem;font-size:.98rem;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s;border-radius:2px;letter-spacing:.3px}
+.btn-main{width:100%;background:var(--ink);color:var(--paper);border:none;padding:1rem;font-size:.98rem;font-weight:600;cursor:pointer;font-family:'DM Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;transition:all .2s;border-radius:2px;letter-spacing:.3px}
 .btn-main:hover:not(:disabled){background:var(--ink2);transform:translateY(-1px)}
 .btn-main:disabled{background:var(--pencil-l);cursor:not-allowed}
-.btn-outline{width:100%;background:transparent;color:var(--ink);border:2px solid var(--ink);padding:1rem;font-size:.98rem;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s;border-radius:2px}
+.btn-outline{width:100%;background:transparent;color:var(--ink);border:2px solid var(--ink);padding:1rem;font-size:.98rem;font-weight:600;cursor:pointer;font-family:'DM Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;transition:all .2s;border-radius:2px}
 .btn-outline:hover{background:var(--paper2)}
 
 /* HISTÓRICO */
 .historico{max-width:700px;margin:2rem auto 0}
-.historico h3{font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:700;margin-bottom:1rem;color:var(--ink);padding-bottom:.6rem;border-bottom:2px solid var(--border)}
+.historico h3{font-family:'Playfair Display',Georgia,serif;font-size:1.3rem;font-weight:700;margin-bottom:1rem;color:var(--ink);padding-bottom:.6rem;border-bottom:2px solid var(--border)}
 .hist-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:1rem}
 .hist-item{background:white;border:1.5px solid var(--border);overflow:hidden;position:relative;box-shadow:3px 3px 0 var(--border2)}
 .hist-item img{width:100%;height:170px;object-fit:cover;display:block}
@@ -248,7 +253,7 @@ footer{text-align:center;padding:2rem;color:var(--ink3);border-top:1.5px solid v
 <div id="landing">
   <section class="hero" style="position:relative;overflow:hidden">
     <div style="position:absolute;inset:0;z-index:0;overflow:hidden">
-      <img src="/hero-bg.png" alt="" style="
+      <img src="/hero-bg.png" alt="" loading="eager" fetchpriority="low" style="
         width:100%;height:100%;
         object-fit:cover;
         object-position:center 20%;
@@ -275,15 +280,15 @@ footer{text-align:center;padding:2rem;color:var(--ink3);border-top:1.5px solid v
     <p class="section-sub">Foto real → Retrato artístico a grafite profissional</p>
     <div class="ex-grid">
       <div class="ex-card">
-        <img src="/ex1.png" alt="Exemplo 1 — Retratos de casais">
+        <img src="/ex1.png" loading="lazy" alt="Exemplo 1 — Retratos de casais">
         <div class="ex-footer">✏ Retratos de casais</div>
       </div>
       <div class="ex-card">
-        <img src="/ex2.png" alt="Exemplo 2 — Animais de estimação">
+        <img src="/ex2.png" loading="lazy" alt="Exemplo 2 — Animais de estimação">
         <div class="ex-footer">✏ Animais de estimação</div>
       </div>
       <div class="ex-card">
-        <img src="/ex3.png" alt="Exemplo 3 — Retratos de casamento">
+        <img src="/ex3.png" loading="lazy" alt="Exemplo 3 — Retratos de casamento">
         <div class="ex-footer">✏ Retratos de casamento</div>
       </div>
     </div>
@@ -316,7 +321,7 @@ footer{text-align:center;padding:2rem;color:var(--ink3);border-top:1.5px solid v
   </div>
 
   <div style="padding:4rem 2rem;text-align:center;border-top:1.5px solid var(--border);background:var(--paper2)">
-    <div style="font-family:'Playfair Display',serif;font-size:clamp(1.6rem,3vw,2.4rem);font-weight:700;color:var(--ink);margin-bottom:1rem">Pronto para transformar sua foto?</div>
+    <div style="font-family:'Playfair Display',Georgia,serif;font-size:clamp(1.6rem,3vw,2.4rem);font-weight:700;color:var(--ink);margin-bottom:1rem">Pronto para transformar sua foto?</div>
     <p style="color:var(--ink3);font-size:.95rem;margin-bottom:2rem;font-weight:400">Envie sua foto e receba a prévia do seu retrato artístico a grafite.</p>
     <button class="btn-cta" onclick="iniciarJornada()">Criar minha arte agora</button>
   </div>
