@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DesenhaArte — Sua imagem em Desenho a Lápis com IA</title>
+<title>DesenhaArte — Seu Retrato em Desenho a Lápis com IA</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@400;500;600&family=Caveat:wght@500&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
@@ -172,14 +172,126 @@ footer{text-align:center;padding:2rem;color:var(--ink3);border-top:1.5px solid v
 /* PIX */
 .pix-code{font-family:monospace;font-size:.75rem;word-break:break-all;color:var(--ink);cursor:pointer;background:var(--paper2);padding:.8rem;border:1.5px solid var(--border);border-radius:2px;font-weight:500}
 
-@media(max-width:640px){
-  nav{padding:.8rem 1rem}
-  .hero{padding:3.5rem 1rem 2rem}
-  .steps{grid-template-columns:1fr}
-  .stats{gap:2rem;flex-direction:column;align-items:center;text-align:center}
+/* ── MOBILE RESPONSIVO ── */
+@media(max-width:768px){
+  /* NAV */
+  nav{padding:.7rem 1rem;gap:.5rem}
+  .logo{font-size:1.2rem}
+  .logo-sub{display:none}
+  .btn-nav{padding:.3rem .7rem;font-size:.75rem}
+  #navEmail{max-width:100px;font-size:.72rem}
+
+  /* HERO */
+  .hero{padding:3rem 1.2rem 2.5rem}
+  h1{font-size:1.8rem;line-height:1.1}
+  .subtitle{font-size:.9rem;margin-bottom:1.2rem}
+  .beneficios{gap:.4rem}
+  .beneficio{font-size:.82rem;padding:.3rem .7rem}
+  .btn-cta{padding:.9rem 1.8rem;font-size:.92rem;width:100%;display:block;text-align:center}
+  .tag-ms{font-size:.9rem}
+  .urgencia{font-size:.9rem;padding:.3rem .8rem}
+
+  /* SECTIONS */
+  .section{padding:3rem 1.2rem}
+  .section-title{font-size:1.6rem}
+  .section-sub{font-size:.85rem;margin-bottom:2rem}
+  .section-label{font-size:1rem}
+
+  /* EXEMPLOS */
+  .ex-grid{grid-template-columns:1fr;gap:1.2rem}
+  .ex-card img{height:220px}
+  .ex-footer{font-size:.95rem}
+
+  /* COMO FUNCIONA */
+  .steps{grid-template-columns:1fr;gap:1.5rem;text-align:left}
+  .step{display:flex;align-items:flex-start;gap:1rem;text-align:left}
+  .step-num{min-width:44px;margin:0;flex-shrink:0}
+  .step h4{margin-bottom:.3rem}
+
+  /* DEPOIMENTOS */
+  .deps-grid{grid-template-columns:1fr;gap:1rem}
+  .dep p{font-size:.85rem}
+
+  /* STATS */
+  .stats{gap:1.5rem;flex-direction:row;flex-wrap:wrap;justify-content:center;padding:2rem 1rem}
+  .stat-num{font-size:2rem}
+  .stat-label{font-size:.9rem}
+
+  /* PLANOS */
+  .planos-wrap{grid-template-columns:1fr;gap:1rem;max-width:100%}
+  .plano{padding:1.5rem 1.2rem}
+  .plano-preco{font-size:2rem}
+
+  /* FOOTER CTA */
+  #landing > div:last-of-type{padding:3rem 1.2rem}
+  #landing > div:last-of-type div{font-size:1.4rem}
+
+  /* PAINEL */
   #painel{padding:1rem}
-  .painel-header{flex-direction:column;align-items:flex-start}
-  .ex-card img{height:200px}
+  .painel-header{flex-direction:column;align-items:flex-start;gap:.4rem;margin-bottom:1.2rem}
+  .painel-titulo{font-size:1.3rem}
+  .cred-badge{font-size:.9rem;padding:.4rem .9rem}
+
+  /* UPLOAD CARD */
+  .upload-card{margin-bottom:1.5rem}
+  .upload-zone{padding:2rem 1.2rem}
+  .upload-icon{font-size:2rem}
+  .upload-zone h3{font-size:1rem}
+  .upload-zone p{font-size:.9rem}
+
+  #previewArea > div:first-child{padding:.8rem 1rem .4rem}
+  #previewArea > div:last-child{padding:0 1rem 1rem}
+  .preview-img{max-height:250px}
+
+  #loadingArea{padding:2rem 1rem}
+  #loadingArea p{font-size:1rem}
+
+  #resultArea{padding:1rem}
+  .liberar-box{padding:1.2rem}
+  .liberar-titulo{font-size:1rem}
+  .liberar-box p{font-size:.83rem}
+  .liberar-preco{font-size:1.6rem}
+  .btn-liberar{padding:.85rem 1rem;font-size:.92rem}
+  .btn-voltar{font-size:.92rem;padding:.65rem}
+
+  #planosArea{padding:1.2rem}
+  .planos-mini{grid-template-columns:1fr 1fr;gap:.5rem}
+  .plano-mini{padding:.8rem}
+  .pm-preco{font-size:1.1rem}
+  .pm-imgs{font-size:.78rem}
+
+  .card-actions{padding:1rem}
+  .btn-main,.btn-outline{padding:.85rem;font-size:.9rem}
+
+  /* HISTÓRICO */
+  .historico{margin-top:1.5rem}
+  .historico h3{font-size:1.1rem}
+  .hist-grid{grid-template-columns:repeat(2,1fr);gap:.7rem}
+  .hist-item img{height:130px}
+  .hist-item-info{padding:.5rem .6rem}
+  .hist-data{font-size:.82rem}
+  .hist-btn{font-size:.8rem;padding:.18rem .4rem}
+  .hist-vazio{font-size:.95rem;padding:1.5rem}
+
+  /* MODAIS */
+  .modal{padding:1.5rem;border-radius:4px;max-height:90vh;overflow-y:auto}
+  .modal h3{font-size:1.2rem}
+  .modal-sub{font-size:.82rem;margin-bottom:1rem}
+  .field label{font-size:.7rem}
+  .field input{padding:.7rem .9rem;font-size:.88rem}
+  .btn-ink{padding:.85rem;font-size:.9rem}
+  .modal-switch{font-size:.8rem}
+
+  /* PIX MODAL */
+  #pixQrArea img{width:150px !important;height:150px !important}
+  .pix-code{font-size:.68rem;padding:.6rem}
+}
+
+@media(max-width:380px){
+  h1{font-size:1.55rem}
+  .hist-grid{grid-template-columns:1fr}
+  .planos-mini{grid-template-columns:1fr}
+  nav .btn-nav.dark{display:none}
 }
 </style>
 </head>
@@ -389,20 +501,26 @@ let selectedFile = null;
 let pixInterval = null;
 
 window.addEventListener('load', async () => {
-  if (TOKEN) await carregarUsuario();
-  else mostrarLanding();
+  if (TOKEN) {
+    await carregarUsuario();
+  } else {
+    mostrarLanding();
+  }
 });
 
 async function carregarUsuario() {
   try {
     const res = await fetch('/api/usuario', { headers: { Authorization: `Bearer ${TOKEN}` } });
-    if (!res.ok) { mostrarLanding(); return; }
+    if (!res.ok) throw new Error('not ok');
     USUARIO = await res.json();
-    if (USUARIO.erro) { mostrarLanding(); return; }
+    if (USUARIO.erro) throw new Error('invalid');
     mostrarLogado();
+    return true;
   } catch {
-    // Network error - keep token, show landing, retry on next load
+    TOKEN = null;
+    localStorage.removeItem('da_jwt');
     mostrarLanding();
+    return false;
   }
 }
 
@@ -412,9 +530,7 @@ function mostrarLogado() {
   document.getElementById('btnSair').style.display   = 'block';
   document.getElementById('btnPainel').style.display = 'block';
   document.getElementById('navEmail').style.display  = 'block';
-  document.getElementById('navCreditos').style.display = 'block';
   document.getElementById('navEmail').textContent    = USUARIO.email;
-  atualizarCreditos(USUARIO.creditos);
   mostrarPainel();
 }
 
