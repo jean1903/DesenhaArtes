@@ -66,43 +66,82 @@ async function adicionarMarcaDagua(imageUrl) {
     const w = meta.width || 800;
     const h = meta.height || 800;
 
-    const fontSize = Math.max(18, Math.floor(w / 12));
-    const lineH = Math.floor(fontSize * 2.5);
-    const charW = Math.floor(fontSize * 0.6);
-    const texto = 'NAO RETIRAR A MARCA DA AGUA   ';
-    const textPixelW = texto.length * charW;
+    // Configuracoes identicas ao modelo
+    const fontSize = Math.max(20, Math.floor(w / 16));
+    const angle = -30;
+    const texto = "NÃO RETIRE A MARCA D’ÁGUA";
+    const lockIcon = '🔒';
+    const lineSpacing = Math.floor(fontSize * 3.2);
+    const colSpacing = Math.floor(fontSize * 14);
 
-    let texts = '';
-    const totalRows = Math.ceil((w + h) / lineH) + 6;
-    const totalCols = Math.ceil((w + h) / textPixelW) + 4;
+    // Calcula quantas linhas e colunas precisamos
+    const diag = Math.ceil(Math.sqrt(w*w + h*h));
+    const numRows = Math.ceil(diag / lineSpacing) + 6;
+    const numCols = Math.ceil(diag / colSpacing) + 4;
+    const offset = Math.floor(diag / 2);
 
-    for (let r = 0; r < totalRows; r++) {
-      for (let c = 0; c < totalCols; c++) {
-        const offset = (r % 2 === 0) ? 0 : Math.floor(textPixelW / 2);
-        const x = c * textPixelW + offset - w * 0.5;
-        const y = r * lineH - h * 0.3;
-        texts += `<text x="${x}" y="${y}" fill="rgba(30,30,30,0.50)" font-family="Arial" font-size="${fontSize}" font-weight="bold" transform="rotate(-25,${x},${y})">${texto}</text>`;
+    let elements = '';
+
+    // Linhas de texto repetidas em diagonal (estilo tracejado)
+    for (let r = -3; r < numRows; r++) {
+      for (let c = -3; c < numCols; c++) {
+        const x = c * colSpacing - offset + (r % 2 === 0 ? 0 : colSpacing / 2);
+        const y = r * lineSpacing - offset;
+        // Texto principal
+        elements += `<text x="${x}" y="${y}" 
+          font-family="Arial, sans-serif" 
+          font-size="${fontSize}" 
+          font-weight="bold" 
+          fill="rgba(20,20,20,0.45)"
+          transform="rotate(${angle}, ${x}, ${y})"
+        >${texto}</text>`;
+        // Ícone de cadeado entre textos
+        const lx = x + colSpacing * 0.5;
+        const ly = y + lineSpacing * 0.5;
+        elements += `<text x="${lx}" y="${ly}"
+          font-size="${Math.floor(fontSize * 0.9)}"
+          fill="rgba(20,20,20,0.35)"
+          transform="rotate(${angle}, ${lx}, ${ly})"
+        >${lockIcon}</text>`;
       }
     }
 
-    const svg = `<svg width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg" overflow="visible">${texts}</svg>`;
+    // Linha central grossa (como na imagem)
+    const cx = w / 2;
+    const cy = h / 2;
+    const bigFontSize = Math.floor(w / 8);
+    elements += `<text x="${cx}" y="${cy}"
+      font-family="Arial Black, Arial, sans-serif"
+      font-size="${bigFontSize}"
+      font-weight="900"
+      fill="rgba(10,10,10,0.55)"
+      text-anchor="middle"
+      dominant-baseline="middle"
+      transform="rotate(${angle}, ${cx}, ${cy})"
+    >${texto}</text>`;
 
-    // Sharp requer SVG com dimensões explícitas para composite
-    const svgBuf = Buffer.from(svg);
+    const svg = `<?xml version="1.0" encoding="UTF-8"?>
+<svg width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg">
+  <rect width="${w}" height="${h}" fill="none"/>
+  ${elements}
+</svg>`;
+
+    const svgBuf = Buffer.from(svg, 'utf8');
+
+    // Renderiza SVG para PNG transparente com sharp
     const wmPng = await sharp(svgBuf)
-      .resize(w, h, { fit: 'contain', background: { r:0, g:0, b:0, alpha:0 } })
       .png()
-      .toBuffer()
-      .catch(() => svgBuf);
+      .toBuffer();
 
     const result = await sharp(imgBuffer)
-      .composite([{ input: svgBuf, blend: 'over' }])
+      .composite([{ input: wmPng, blend: 'over' }])
       .jpeg({ quality: 90 })
       .toBuffer();
 
     return result.toString('base64');
   } catch(e) {
-    console.error('Erro marca dagua:', e.message, e.stack);
+    console.error('Erro marca dagua:', e.message);
+    console.error(e.stack);
     return null;
   }
 }
